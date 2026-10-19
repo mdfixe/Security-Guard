@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Guard</title>
+  <!-- Fonte estilo terminal antigo. Sem internet, o jogo usa uma fonte monospace normal. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="game" class="map-facility">
+
+    <!-- =====================================================
+         SALA DE SEGURANÇA (ecrã principal)
+         ===================================================== -->
+    <section id="office">
+      <div class="office-wall"></div>
+      <div class="office-floor"></div>
+      <div class="pipe pipe-top"></div>
+      <div class="pipe pipe-top-2"></div>
+      <div class="pipe pipe-side"></div>
+      <div class="wall-vent"></div>
+      <div class="wall-note">DON'T<br>LET IT<br>IN</div>
+
+      <!-- Porta: atrás dela está o corredor -->
+      <div id="doorway">
+        <div id="corridor" class="room">
+          <div class="r-ceiling"></div>
+          <div class="r-wall-l"></div>
+          <div class="r-wall-r"></div>
+          <div class="r-floor"></div>
+          <div class="r-back"></div>
+          <div class="corr-pipe corr-pipe-l"></div>
+          <div class="corr-pipe corr-pipe-r"></div>
+
+          <!-- Monstros vistos da porta. O JS só os mostra com a LIGHT ligada. -->
+          <div id="corridor-black" class="figure creature">
+            <div class="c-arm c-arm-l"></div>
+            <div class="c-arm c-arm-r"></div>
+            <div class="c-leg c-leg-l"></div>
+            <div class="c-leg c-leg-r"></div>
+            <div class="c-body"></div>
+            <div class="c-head"><span class="c-eye"></span><span class="c-eye"></span></div>
+          </div>
+          <div id="corridor-watcher" class="figure watcher">
+            <div class="w-arm w-arm-l"><span class="w-hand"></span></div>
+            <div class="w-arm w-arm-r"><span class="w-hand"></span></div>
+            <div class="w-leg w-leg-l"></div>
+            <div class="w-leg w-leg-r"></div>
+            <div class="w-torso"></div>
+            <div class="w-neck"></div>
+            <div class="w-head"><span class="w-eye"></span><span class="w-eye"></span></div>
+          </div>
+          <div id="corridor-morrow" class="figure morrow-figure" data-pose="stand" data-mood="attacking"></div>
+
+          <div id="corridor-dark"></div>
+          <!-- Olhos que aparecem quando a energia acaba -->
+          <div id="powerout-eyes" data-monster="black"><span></span><span></span></div>
+        </div>
+
+        <div id="door">
+          <!-- Pequena janela na porta: com a luz ligada vê-se quem está lá fora -->
+          <div class="door-slot">
+            <div id="slot-black" class="slot-figure slot-black"></div>
+            <div id="slot-watcher" class="slot-figure slot-watcher"></div>
+            <div id="slot-morrow" class="slot-figure slot-morrow"></div>
+          </div>
+          <div class="door-hazard"></div>
+        </div>
+      </div>
+      <div class="door-frame"></div>
+
+      <!-- Painel com os botões da porta e da luz -->
+      <div id="controls">
+        <button id="btn-door" class="ctrl-btn" type="button">CLOSE DOOR</button>
+        <button id="btn-light" class="ctrl-btn" type="button">LIGHT</button>
+      </div>
+
+      <!-- Grelha da vent da sala (Night 4): carrega e mantém o rato para a segurar -->
+      <div id="office-vent-wrap">
+        <div id="office-vent" title="Hold to keep the vent shut">
+          <div class="ov-dark"></div>
+          <div class="ov-slats"></div>
+          <div class="ov-bolt ov-bolt-1"></div><div class="ov-bolt ov-bolt-2"></div>
+          <div class="ov-bolt ov-bolt-3"></div><div class="ov-bolt ov-bolt-4"></div>
+          <div class="ov-hand ov-hand-l"></div>
+          <div class="ov-hand ov-hand-r"></div>
+        </div>
+        <button id="btn-hold-vent" class="ctrl-btn" type="button">HOLD VENT</button>
+      </div>
+
+      <div id="desk"></div>
+      <button id="btn-cameras" class="ctrl-btn" type="button">&#9650; CAMERAS</button>
+
+      <div class="office-flicker"></div>
+      <div id="office-dim"></div>
+    </section>
+
+    <!-- =====================================================
+         SISTEMA DE CÂMARAS
+         ===================================================== -->
+    <section id="camera-panel" class="hidden">
+      <div id="cam-screen" data-watch="0">
+        <div id="cam-view">
+
+          <!-- ============ MAPA DA NIGHT 1: FACILITY ============ -->
+          <div class="scene-set" data-map="facility">
+
+            <!-- CAM 01 — Entrance -->
+            <div class="scene room scene-entrance" data-cam="cam1">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop p-glass-doors"></div>
+              <div class="prop p-exit">EXIT</div>
+              <div class="prop p-mat"></div>
+              <div class="prop p-bench"></div>
+            </div>
+
+            <!-- CAM 02 — Storage -->
+            <div class="scene room scene-storage" data-cam="cam2">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop p-boxes"></div>
+              <div class="prop p-shelf p-shelf-l"></div>
+              <div class="prop p-shelf p-shelf-r"></div>
+              <div class="prop p-bulb"></div>
+            </div>
+
+            <!-- CAM 03 — Main Hall -->
+            <div class="scene room scene-hall" data-cam="cam3">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop p-banner">WELCOME</div>
+              <div class="prop p-table"></div>
+              <div class="prop p-pillar p-pillar-a"></div>
+              <div class="prop p-pillar p-pillar-b"></div>
+            </div>
+
+            <!-- CAM 04 — Corridor -->
+            <div class="scene room scene-corridor" data-cam="cam4">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop p-sdoor p-sdoor-l1"></div>
+              <div class="prop p-sdoor p-sdoor-l2"></div>
+              <div class="prop p-sdoor p-sdoor-r1"></div>
+              <div class="prop p-sdoor p-sdoor-r2"></div>
+              <div class="prop p-clight p-clight-1"></div>
+              <div class="prop p-clight p-clight-2"></div>
+              <div class="prop p-clight p-clight-3"></div>
+            </div>
+
+            <!-- CAM 05 — Outside Office -->
+            <div class="scene room scene-outside" data-cam="cam5">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop p-stain"></div>
+              <div class="prop p-poster">SAFETY<br>FIRST</div>
+              <div class="prop p-office-door"><div class="p-sign">SECURITY</div></div>
+            </div>
+          </div>
+
+          <!-- ============ MAPA DA NIGHT 2: UNDERGROUND (B2) ============ -->
+          <div class="scene-set" data-map="underground">
+
+            <!-- CAM 01 — Generator Room -->
+            <div class="scene room ug-generator" data-cam="cam1">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop g-ceiling-pipe"></div>
+              <div class="prop g-warn"></div>
+              <div class="prop g-gen g-gen-a"></div>
+              <div class="prop g-gen g-gen-b"></div>
+              <div class="prop g-cable g-cable-1"></div>
+              <div class="prop g-cable g-cable-2"></div>
+            </div>
+
+            <!-- CAM 02 — Pipe Hall -->
+            <div class="scene room ug-pipes" data-cam="cam2">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop ph-pipe ph-l1"></div>
+              <div class="prop ph-pipe ph-l2"></div>
+              <div class="prop ph-pipe ph-l3"></div>
+              <div class="prop ph-pipe ph-r1"></div>
+              <div class="prop ph-pipe ph-r2"></div>
+              <div class="prop ph-pipe ph-r3"></div>
+              <div class="prop ph-grate"></div>
+              <div class="prop p-clight ph-light-1"></div>
+              <div class="prop p-clight ph-light-2"></div>
+            </div>
+
+            <!-- CAM 03 — Maintenance -->
+            <div class="scene room ug-maintenance" data-cam="cam3">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop m-pegboard">
+                <span class="m-tool m-tool-1"></span>
+                <span class="m-tool m-tool-2"></span>
+                <span class="m-tool m-tool-3"></span>
+              </div>
+              <div class="prop m-bench"></div>
+              <div class="prop m-toolbox"></div>
+              <div class="prop m-barrel"></div>
+            </div>
+
+            <!-- CAM 04 — Junction -->
+            <div class="scene room ug-junction" data-cam="cam4">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop j-open j-open-c"></div>
+              <div class="prop j-open j-open-l"></div>
+              <div class="prop j-open j-open-r"></div>
+              <div class="prop j-mark j-mark-1"></div>
+              <div class="prop j-mark j-mark-2"></div>
+              <div class="prop j-sign">B2</div>
+              <div class="prop j-lamp"></div>
+            </div>
+
+            <!-- CAM 05 — Storage -->
+            <div class="scene room ug-storage" data-cam="cam5">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop crate crate-1"></div>
+              <div class="prop crate crate-2"></div>
+              <div class="prop crate crate-3"></div>
+              <div class="prop crate crate-4"></div>
+              <div class="prop crate crate-5"></div>
+              <div class="prop s-bulb"></div>
+              <div class="prop s-dark"></div>
+            </div>
+
+            <!-- CAM 06 — Service Hall -->
+            <div class="scene room ug-service" data-cam="cam6">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop sv-pipe"></div>
+              <div class="prop sv-vent"></div>
+              <div class="prop sv-door"><div class="p-sign">SECURITY</div></div>
+              <div class="prop sv-hazard"></div>
+            </div>
+          </div>
+
+          <!-- ============ MAPA DA NIGHT 3: RESEARCH WING ============ -->
+          <div class="scene-set" data-map="researchWing">
+
+            <!-- CAM 01 — Reception -->
+            <div class="scene room rw rw-reception" data-cam="cam1">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop rw-sign">RESEARCH WING</div>
+              <div class="prop rw-desk"></div>
+              <div class="prop rw-papers"></div>
+              <div class="prop rw-chair"></div>
+              <div class="prop rw-red-light"></div>
+            </div>
+
+            <!-- CAM 02 — Observation Hall -->
+            <div class="scene room rw rw-observation" data-cam="cam2">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop rw-window rw-window-a"><span class="crack c1"></span><span class="crack c2"></span><span class="crack c3"></span></div>
+              <div class="prop rw-window rw-window-b"><span class="crack c2"></span><span class="crack c4"></span></div>
+              <div class="prop rw-shards"></div>
+              <div class="prop rw-red-light"></div>
+            </div>
+
+            <!-- CAM 03 — Laboratory -->
+            <div class="scene room rw rw-lab" data-cam="cam3">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop rw-screen"></div>
+              <div class="prop rw-bench rw-bench-a"></div>
+              <div class="prop rw-bench rw-bench-b"></div>
+              <div class="prop rw-cable rw-cable-1"></div>
+              <div class="prop rw-cable rw-cable-2"></div>
+              <div class="prop rw-cable rw-cable-3"></div>
+            </div>
+
+            <!-- CAM 04 — Archive -->
+            <div class="scene room rw rw-archive" data-cam="cam4">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop rw-cabinet rw-cab-1"></div>
+              <div class="prop rw-cabinet rw-cab-2"></div>
+              <div class="prop rw-cabinet rw-cab-3"></div>
+              <div class="prop rw-cabinet rw-cab-4"></div>
+              <div class="prop rw-papers rw-papers-b"></div>
+              <div class="prop rw-dark"></div>
+            </div>
+
+            <!-- CAM 05 — Containment Hall -->
+            <div class="scene room rw rw-containment" data-cam="cam5">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop rw-vault"><div class="rw-vault-ring"></div></div>
+              <div class="prop rw-marks rw-marks-a"></div>
+              <div class="prop rw-hazard-floor"></div>
+              <div class="prop rw-red-light"></div>
+            </div>
+
+            <!-- CAM 06 — Service Corridor -->
+            <div class="scene room rw rw-service" data-cam="cam6">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop rw-pipe"></div>
+              <div class="prop rw-cable rw-cable-4"></div>
+              <div class="prop rw-office-door"><div class="p-sign">SECURITY</div></div>
+              <div class="prop rw-marks rw-marks-b"></div>
+            </div>
+
+            <!-- CAM 07 — Specimen Room (o quarto do Morrow) -->
+            <div class="scene room rw rw-specimen" data-cam="cam7">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop rw-window rw-window-c"><span class="crack c1"></span><span class="crack c3"></span><span class="crack c4"></span></div>
+              <div class="prop rw-marks rw-marks-c"></div>
+              <div class="prop rw-chain rw-chain-1"></div>
+              <div class="prop rw-chain rw-chain-2"></div>
+              <div class="prop rw-bars"></div>
+              <div class="prop rw-green-light"></div>
+            </div>
+          </div>
+
+          <!-- ============ MAPA DA NIGHT 4: VENTILATION & POWER COMPLEX ============ -->
+          <div class="scene-set" data-map="powerComplex">
+
+            <!-- CAM 01 — Power Control -->
+            <div class="scene room pc pc-control" data-cam="cam1">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop pc-panels"><span class="pc-leds"></span></div>
+              <div class="prop pc-console"></div>
+              <div class="prop pc-lever"></div>
+              <div class="prop pc-amber"></div>
+            </div>
+
+            <!-- CAM 02 — Turbine Hall -->
+            <div class="scene room pc pc-turbine" data-cam="cam2">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop pc-fan"><div class="pc-fan-blades"></div><div class="pc-fan-hub"></div></div>
+              <div class="prop pc-rail"></div>
+              <div class="prop pc-amber"></div>
+            </div>
+
+            <!-- CAM 03 — Maintenance Junction -->
+            <div class="scene room pc pc-junction" data-cam="cam3">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop pc-duct pc-duct-h"></div>
+              <div class="prop pc-duct pc-duct-v"></div>
+              <div class="prop pc-hazard"></div>
+              <div class="prop pc-steam pc-steam-1"></div>
+            </div>
+
+            <!-- CAM 04 — Cooling Room (entrada das vents) -->
+            <div class="scene room pc pc-cooling" data-cam="cam4">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop pc-tank pc-tank-a"></div>
+              <div class="prop pc-tank pc-tank-b"></div>
+              <div class="prop pc-vent-hole"><span class="pc-vent-cover"></span></div>
+              <div class="prop pc-steam pc-steam-2"></div>
+            </div>
+
+            <!-- CAM 05 — Generator Hall -->
+            <div class="scene room pc pc-generator" data-cam="cam5">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop g-gen pc-gen-a"></div>
+              <div class="prop g-gen pc-gen-b"></div>
+              <div class="prop g-gen pc-gen-c"></div>
+              <div class="prop rw-cable pc-cable-1"></div>
+              <div class="prop pc-amber"></div>
+            </div>
+
+            <!-- CAM 06 — Service Tunnel -->
+            <div class="scene room pc pc-tunnel" data-cam="cam6">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop ph-pipe ph-l1"></div>
+              <div class="prop ph-pipe ph-r2"></div>
+              <div class="prop pc-tlight pc-tlight-1"></div>
+              <div class="prop pc-tlight pc-tlight-2"></div>
+              <div class="prop rw-cable pc-cable-2"></div>
+            </div>
+
+            <!-- CAM 07 — Lower Junction -->
+            <div class="scene room pc pc-lower" data-cam="cam7">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop pc-stairs"></div>
+              <div class="prop pc-grate"></div>
+              <div class="prop pc-duct pc-duct-low"></div>
+            </div>
+
+            <!-- CAM 08 — Morrow Chamber -->
+            <div class="scene room pc pc-chamber" data-cam="cam8">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop rw-chain rw-chain-1"></div>
+              <div class="prop rw-chain rw-chain-2"></div>
+              <div class="prop rw-marks rw-marks-c"></div>
+              <div class="prop pc-cage"></div>
+              <div class="prop rw-green-light"></div>
+            </div>
+
+            <!-- CAM 09 — Main Hall -->
+            <div class="scene room pc pc-hall" data-cam="cam9">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop pc-duct pc-duct-ceil"></div>
+              <div class="prop rw-office-door pc-office-door"><div class="p-sign">SECURITY</div></div>
+              <div class="prop pc-hazard pc-hazard-hall"></div>
+              <div class="prop pc-amber"></div>
+            </div>
+
+            <!-- VENT A — Intake Duct (liga à Cooling Room) -->
+            <div class="scene room vent vent-a" data-cam="ventA">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop vent-ribs"></div>
+              <div class="prop vent-opening"></div>
+            </div>
+
+            <!-- VENT B — Cross Duct -->
+            <div class="scene room vent vent-b" data-cam="ventB">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop vent-ribs"></div>
+              <div class="prop vent-side vent-side-l"></div>
+              <div class="prop vent-side vent-side-r"></div>
+            </div>
+
+            <!-- VENT C — Office Duct (do outro lado está a tua grelha) -->
+            <div class="scene room vent vent-c" data-cam="ventC">
+              <div class="r-ceiling"></div><div class="r-wall-l"></div><div class="r-wall-r"></div><div class="r-floor"></div><div class="r-back"></div>
+              <div class="prop vent-ribs"></div>
+              <div class="prop vent-end-grille"></div>
+            </div>
+          </div>
+
+          <!-- Monstros vistos nas câmaras (o JS diz em que câmara está cada um) -->
+          <div id="cam-black" class="figure creature cam-monster hidden">
+            <div class="c-arm c-arm-l"></div>
+            <div class="c-arm c-arm-r"></div>
+            <div class="c-leg c-leg-l"></div>
+            <div class="c-leg c-leg-r"></div>
+            <div class="c-body"></div>
+            <div class="c-head"><span class="c-eye"></span><span class="c-eye"></span></div>
+          </div>
+          <div id="cam-watcher" class="figure watcher cam-monster hidden">
+            <div class="w-arm w-arm-l"><span class="w-hand"></span></div>
+            <div class="w-arm w-arm-r"><span class="w-hand"></span></div>
+            <div class="w-leg w-leg-l"></div>
+            <div class="w-leg w-leg-r"></div>
+            <div class="w-torso"></div>
+            <div class="w-neck"></div>
+            <div class="w-head"><span class="w-eye"></span><span class="w-eye"></span></div>
+          </div>
+          <div id="cam-morrow" class="figure morrow-figure cam-monster hidden" data-pose="lying" data-mood="sleeping"></div>
+          <div id="cam-echo" class="figure echo-figure cam-monster hidden" data-pose="crouch" data-mood="calm" data-part="full"></div>
+
+          <!-- Escuridão / falhas de luz de algumas salas (por cima dos monstros) -->
+          <div class="cam-room-dark"></div>
+        </div>
+
+        <canvas id="cam-noise" width="192" height="108"></canvas>
+        <div class="cam-rollbar"></div>
+        <div class="cam-tear"></div>
+        <div class="cam-hud">
+          <span class="cam-rec">&#9679; REC</span>
+          <span id="cam-label">CAM 01 — ENTRANCE</span>
+        </div>
+      </div>
+
+      <!-- Mapas do edifício -->
+      <aside id="cam-side">
+        <!-- Night 4: câmaras principais ou câmaras das vents -->
+        <div id="net-toggle" class="net-toggle hidden">
+          <button id="btn-net-main" class="net-btn selected" type="button">MAIN CAMS</button>
+          <button id="btn-net-vent" class="net-btn" type="button">VENT CAMS</button>
+        </div>
+        <div id="map-title">GROUND FLOOR</div>
+
+        <!-- Night 1 -->
+        <div class="cam-map map-facility-layout" data-map="facility">
+          <div class="map-link fl-link-1"></div>
+          <div class="map-link fl-link-2"></div>
+          <div class="map-link fl-link-3"></div>
+          <div class="map-link fl-link-4"></div>
+          <div class="map-link fl-link-5"></div>
+
+          <div class="map-room fl-entrance"><button class="cam-btn" type="button" data-cam="cam1">CAM 01</button></div>
+          <div class="map-room fl-storage"><button class="cam-btn" type="button" data-cam="cam2">CAM 02</button></div>
+          <div class="map-room fl-hall"><button class="cam-btn" type="button" data-cam="cam3">CAM 03</button></div>
+          <div class="map-room fl-corridor"><button class="cam-btn" type="button" data-cam="cam4">CAM 04</button></div>
+          <div class="map-room fl-outside"><button class="cam-btn" type="button" data-cam="cam5">CAM 05</button></div>
+          <div class="map-room map-office fl-office"><span>YOU</span></div>
+        </div>
+
+        <!-- Night 2 -->
+        <div class="cam-map map-underground-layout" data-map="underground">
+          <div class="map-link ug-link-12"></div>
+          <div class="map-link ug-link-23"></div>
+          <div class="map-link ug-link-34"></div>
+          <div class="map-link ug-link-54"></div>
+          <div class="map-link ug-link-46"></div>
+          <div class="map-link ug-link-6o"></div>
+
+          <div class="map-room ug-r1"><button class="cam-btn" type="button" data-cam="cam1">CAM 01</button></div>
+          <div class="map-room ug-r2"><button class="cam-btn" type="button" data-cam="cam2">CAM 02</button></div>
+          <div class="map-room ug-r3"><button class="cam-btn" type="button" data-cam="cam3">CAM 03</button></div>
+          <div class="map-room ug-r4"><button class="cam-btn" type="button" data-cam="cam4">CAM 04</button></div>
+          <div class="map-room ug-r5"><button class="cam-btn" type="button" data-cam="cam5">CAM 05</button></div>
+          <div class="map-room ug-r6"><button class="cam-btn" type="button" data-cam="cam6">CAM 06</button></div>
+          <div class="map-room map-office ug-office"><span>YOU</span></div>
+        </div>
+
+        <!-- Night 4: câmaras principais -->
+        <div class="cam-map map-power-layout" data-map="powerComplex">
+          <div class="map-link pc-link-12"></div>
+          <div class="map-link pc-link-23"></div>
+          <div class="map-link pc-link-39"></div>
+          <div class="map-link pc-link-24"></div>
+          <div class="map-link pc-link-36"></div>
+          <div class="map-link pc-link-9o"></div>
+          <div class="map-link pc-link-45"></div>
+          <div class="map-link pc-link-67"></div>
+          <div class="map-link pc-link-57"></div>
+          <div class="map-link pc-link-78"></div>
+
+          <div class="map-room pc-r1"><button class="cam-btn" type="button" data-cam="cam1">CAM 01</button></div>
+          <div class="map-room pc-r2"><button class="cam-btn" type="button" data-cam="cam2">CAM 02</button></div>
+          <div class="map-room pc-r3"><button class="cam-btn" type="button" data-cam="cam3">CAM 03</button></div>
+          <div class="map-room pc-r9"><button class="cam-btn" type="button" data-cam="cam9">CAM 09</button></div>
+          <div class="map-room pc-r4"><span class="map-vent-tag">VENT</span><button class="cam-btn" type="button" data-cam="cam4">CAM 04</button></div>
+          <div class="map-room pc-r6"><button class="cam-btn" type="button" data-cam="cam6">CAM 06</button></div>
+          <div class="map-room map-office pc-office"><span>YOU</span></div>
+          <div class="map-room pc-r5"><button class="cam-btn" type="button" data-cam="cam5">CAM 05</button></div>
+          <div class="map-room pc-r7"><button class="cam-btn" type="button" data-cam="cam7">CAM 07</button></div>
+          <div class="map-room map-special pc-r8"><span class="map-special-tag">MORROW</span><button class="cam-btn" type="button" data-cam="cam8">CAM 08</button></div>
+        </div>
+
+        <!-- Night 4: rede de ventilação (outra rede, outras câmaras) -->
+        <div class="cam-map map-vent-layout" data-map="powerComplex-vents">
+          <div class="vent-duct vd-ab"></div>
+          <div class="vent-duct vd-bc"></div>
+          <div class="vent-duct vd-a4"></div>
+          <div class="vent-duct vd-co"></div>
+
+          <div class="map-room vent-node vn-a"><button class="cam-btn vent-btn" type="button" data-cam="ventA">VENT A</button></div>
+          <div class="map-room vent-node vn-b"><button class="cam-btn vent-btn" type="button" data-cam="ventB">VENT B</button></div>
+          <div class="map-room vent-node vn-c"><button class="cam-btn vent-btn" type="button" data-cam="ventC">VENT C</button></div>
+          <div class="map-room vent-ghost vn-cam4"><span>CAM 04</span></div>
+          <div class="map-room map-office vn-office"><span>YOU</span></div>
+        </div>
+
+        <!-- Night 3 -->
+        <div class="cam-map map-research-layout" data-map="researchWing">
+          <div class="map-link rw-link-12"></div>
+          <div class="map-link rw-link-23"></div>
+          <div class="map-link rw-link-24"></div>
+          <div class="map-link rw-link-45"></div>
+          <div class="map-link rw-link-75"></div>
+          <div class="map-link rw-link-56"></div>
+          <div class="map-link rw-link-6o"></div>
+
+          <div class="map-room rw-r1"><button class="cam-btn" type="button" data-cam="cam1">CAM 01</button></div>
+          <div class="map-room rw-r2"><button class="cam-btn" type="button" data-cam="cam2">CAM 02</button></div>
+          <div class="map-room rw-r3"><button class="cam-btn" type="button" data-cam="cam3">CAM 03</button></div>
+          <div class="map-room rw-r4"><button class="cam-btn" type="button" data-cam="cam4">CAM 04</button></div>
+          <div class="map-room rw-r5"><button class="cam-btn" type="button" data-cam="cam5">CAM 05</button></div>
+          <div class="map-room rw-r6"><button class="cam-btn" type="button" data-cam="cam6">CAM 06</button></div>
+          <div class="map-room map-special rw-r7"><span class="map-special-tag">SPECIMEN</span><button class="cam-btn" type="button" data-cam="cam7">CAM 07</button></div>
+          <div class="map-room map-office rw-office"><span>YOU</span></div>
+        </div>
+
+        <button id="btn-close-cams" class="ctrl-btn" type="button">&#9660; CLOSE</button>
+      </aside>
+    </section>
+
+    <!-- =====================================================
+         HUD: relógio e energia
+         ===================================================== -->
+    <div id="hud-clock">
+      <div id="clock">12:00 AM</div>
+      <div id="night-label" class="night-label">NIGHT 1</div>
+    </div>
+
+    <div id="hud-power">
+      <div class="power-line">POWER <span id="power-value">100%</span></div>
+      <div class="power-bar"><div id="power-fill"></div></div>
+      <div class="usage">USAGE <span class="usage-bar"></span><span class="usage-bar"></span><span class="usage-bar"></span><span class="usage-bar"></span></div>
+    </div>
+
+    <!-- =====================================================
+         ECRÃS: menu, intro, jumpscare, derrota, vitória
+         ===================================================== -->
+    <div id="start-screen" class="overlay">
+      <h1 class="title">SECURITY GUARD</h1>
+      <div class="night-select">
+        <button id="btn-night-1" class="ctrl-btn night-btn" type="button" data-night="1">NIGHT 1</button>
+        <button id="btn-night-2" class="ctrl-btn night-btn" type="button" data-night="2">NIGHT 2<span class="lock-label">LOCKED</span></button>
+        <button id="btn-night-3" class="ctrl-btn night-btn" type="button" data-night="3">NIGHT 3<span class="lock-label">LOCKED</span></button>
+        <button id="btn-night-4" class="ctrl-btn night-btn" type="button" data-night="4">NIGHT 4<span class="lock-label">LOCKED</span></button>
+      </div>
+      <button id="btn-options" class="ctrl-btn options-btn" type="button">OPTIONS</button>
+      <p class="hint">Survive until 6 AM. Sound on.</p>
+    </div>
+
+    <!-- Opções de áudio -->
+    <div id="options-screen" class="overlay hidden">
+      <h1 class="title title-small">AUDIO</h1>
+      <div class="volume-list">
+        <label class="volume-row" for="vol-master">
+          <span class="volume-name">MASTER VOLUME</span>
+          <input id="vol-master" class="volume-slider" type="range" min="0" max="100" step="1" value="100">
+          <span id="vol-master-value" class="volume-value">100%</span>
+        </label>
+        <label class="volume-row" for="vol-sfx">
+          <span class="volume-name">SFX VOLUME</span>
+          <input id="vol-sfx" class="volume-slider" type="range" min="0" max="100" step="1" value="80">
+          <span id="vol-sfx-value" class="volume-value">80%</span>
+        </label>
+        <label class="volume-row" for="vol-ambience">
+          <span class="volume-name">AMBIENCE VOLUME</span>
+          <input id="vol-ambience" class="volume-slider" type="range" min="0" max="100" step="1" value="45">
+          <span id="vol-ambience-value" class="volume-value">45%</span>
+        </label>
+      </div>
+      <button id="btn-options-back" class="ctrl-btn" type="button">BACK</button>
+    </div>
+
+    <div id="night-intro" class="overlay hidden">
+      <div class="intro-time">12:00 AM</div>
+      <div id="intro-night" class="intro-night">NIGHT 1</div>
+    </div>
+
+    <div id="jumpscare" class="overlay hidden" data-monster="black">
+      <div class="js-face js-black">
+        <div class="js-eye js-eye-l"></div>
+        <div class="js-eye js-eye-r"></div>
+        <div class="js-mouth"></div>
+      </div>
+      <div class="js-face js-watcher">
+        <div class="jw-eye jw-eye-l"></div>
+        <div class="jw-eye jw-eye-r"></div>
+      </div>
+      <div class="js-face js-morrow">
+        <div class="jm-stage jm-stand morrow-figure" data-pose="stand" data-mood="attacking"></div>
+        <div class="jm-stage jm-rear morrow-figure" data-pose="rear" data-mood="attacking"></div>
+        <svg class="jm-stage jm-head" viewBox="0 0 200 220" aria-hidden="true">
+          <path class="jm-horn" d="M70 44 L50 10 L40 2 L46 16 L30 12 L44 26 L34 28 L52 36 L64 54 Z"/>
+          <path class="jm-horn" d="M130 44 L150 10 L160 2 L154 16 L170 12 L156 26 L166 28 L148 36 L136 54 Z"/>
+          <path class="jm-skull" d="M56 48 C58 26 142 26 144 48 L136 120 C132 150 120 176 100 186 C80 176 68 150 64 120 Z"/>
+          <path class="jm-mark" d="M88 46 L95 66 M104 46 L100 68 M112 50 L107 64"/>
+          <ellipse class="jm-socket" cx="80" cy="80" rx="15" ry="11"/>
+          <ellipse class="jm-socket" cx="120" cy="80" rx="15" ry="11"/>
+          <ellipse class="jm-eye" cx="80" cy="81" rx="4.5" ry="3.5"/>
+          <ellipse class="jm-eye" cx="120" cy="81" rx="4.5" ry="3.5"/>
+          <path class="jm-socket" d="M93 142 L98 126 L100 142 Z M107 142 L102 126 L100 142 Z"/>
+          <path class="jm-mouth" d="M76 158 C86 200 114 200 124 158 C114 170 86 170 76 158 Z"/>
+          <path class="jm-teeth" d="M80 162 L85 178 L89 166 L94 184 L98 168 L102 184 L106 168 L111 184 L115 166 L119 178 L120 162 C110 170 90 170 80 162 Z"/>
+        </svg>
+      </div>
+      <div class="js-face js-echo">
+        <div class="je-stage je-grille"></div>
+        <svg class="je-stage je-hand" viewBox="0 0 200 200" aria-hidden="true">
+          <path class="e-skin" d="M0 200 L0 150 C30 140 60 128 84 120 L90 128 C66 140 38 156 18 200 Z"/>
+          <path class="e-skin" d="M82 118 C96 104 112 96 128 92 L132 98 C118 104 104 114 92 128 Z"/>
+          <path class="e-claw" d="M126 92 L176 58 L180 62 L132 98 Z"/>
+          <path class="e-claw" d="M128 96 L188 84 L189 89 L132 101 Z"/>
+          <path class="e-claw" d="M126 100 L178 112 L176 117 L124 106 Z"/>
+          <path class="e-claw" d="M118 90 L150 40 L155 42 L124 94 Z"/>
+        </svg>
+        <div class="je-stage je-crawl echo-figure" data-pose="crawl" data-mood="aggressive" data-part="full"></div>
+        <div class="je-stage je-rear echo-figure" data-pose="rear" data-mood="aggressive" data-part="full"></div>
+        <svg class="je-stage je-face" viewBox="0 0 240 220" aria-hidden="true">
+          <defs>
+            <radialGradient id="je-skin-grad" cx="50%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#bdbab0"/>
+              <stop offset="60%" stop-color="#8f8c83"/>
+              <stop offset="100%" stop-color="#4a4843"/>
+            </radialGradient>
+            <radialGradient id="je-maw-grad" cx="50%" cy="20%" r="80%">
+              <stop offset="0%" stop-color="#3a0606"/>
+              <stop offset="100%" stop-color="#0a0000"/>
+            </radialGradient>
+          </defs>
+          <path class="je-mem" d="M86 96 C60 74 30 60 2 54 C12 44 10 32 4 20 C22 24 32 18 36 6 C46 18 58 20 66 14 C68 36 78 54 94 70 Z"/>
+          <path class="je-mem" d="M154 96 C180 74 210 60 238 54 C228 44 230 32 236 20 C218 24 208 18 204 6 C194 18 182 20 174 14 C172 36 162 54 146 70 Z"/>
+          <path class="je-vein" d="M86 90 C64 74 36 62 10 50 M86 84 C66 66 46 46 28 18 M90 76 C80 60 72 42 66 20"/>
+          <path class="je-vein" d="M154 90 C176 74 204 62 230 50 M154 84 C174 66 194 46 212 18 M150 76 C160 60 168 42 174 20"/>
+          <path class="je-head" d="M78 72 C80 40 160 40 162 72 C164 104 154 134 142 162 C136 180 130 198 120 210 C110 198 104 180 98 162 C86 134 76 104 78 72 Z"/>
+          <path class="je-fold" d="M92 70 C102 78 112 76 120 68 C128 76 138 78 148 70"/>
+          <path class="je-fold" d="M94 86 C104 92 114 90 120 84 C126 90 136 92 146 86"/>
+          <path class="je-fold" d="M100 100 C112 104 128 104 140 100"/>
+          <path class="je-fold" d="M112 118 L114 130 M128 118 L126 130"/>
+          <path class="je-jaw" d="M100 138 C98 168 110 198 120 206 C130 198 142 168 140 138 C132 148 108 148 100 138 Z"/>
+          <path class="je-teeth" d="M102 140 L105 151 L108 144 L111 155 L114 146 L117 157 L120 147 L123 157 L126 146 L129 155 L132 144 L135 151 L138 140 C130 147 110 147 102 140 Z"/>
+          <path class="je-teeth" d="M101 150 L108 156 L102 160 L110 166 L104 170 L111 177 L106 180 Z M139 150 L132 156 L138 160 L130 166 L136 170 L129 177 L134 180 Z"/>
+        </svg>
+      </div>
+      <canvas id="js-noise" width="192" height="108"></canvas>
+      <div class="js-tear"></div>
+    </div>
+
+    <div id="lose-screen" class="overlay hidden">
+      <h1 id="lose-title" class="title title-caught">CAUGHT BY BLACK</h1>
+      <div class="btn-row">
+        <button id="btn-retry" class="ctrl-btn" type="button">RETRY</button>
+        <button id="btn-lose-menu" class="ctrl-btn" type="button">MENU</button>
+      </div>
+    </div>
+
+    <div id="win-screen" class="overlay hidden">
+      <div class="win-time">6:00 AM</div>
+      <div id="win-message" class="hidden">
+        <h1 class="title">NIGHT SURVIVED</h1>
+        <p id="unlock-note" class="unlock-note hidden">NIGHT 2 UNLOCKED</p>
+        <div class="btn-row">
+          <button id="btn-next-night" class="ctrl-btn" type="button">NEXT NIGHT</button>
+          <button id="btn-play-again" class="ctrl-btn" type="button">PLAY AGAIN</button>
+          <button id="btn-win-menu" class="ctrl-btn" type="button">MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desenho do Morrow (o JS copia-o para a câmara, o corredor e o jumpscare).
+         Cada <svg> é uma pose; o CSS mostra a que corresponde ao data-pose. -->
+    <template id="tpl-morrow">
+      <!-- Deitado a dormir -->
+      <svg class="m-pose m-lying" viewBox="0 0 200 200" aria-hidden="true">
+        <g class="m-body">
+          <path d="M46 196 C44 176 64 160 98 158 C134 156 160 168 168 196 Z"/>
+          <path d="M150 196 C152 184 166 180 182 188 L186 196 Z"/>
+          <path d="M64 192 L22 190 L20 194 L64 196 Z"/>
+        </g>
+        <g class="m-paw"><path d="M62 186 L30 182 L28 187 L62 191 Z"/></g>
+        <g class="m-head">
+          <path d="M60 178 C50 178 40 182 34 186 L36 192 C44 190 54 188 62 188 Z"/>
+          <path d="M6 190 C8 182 20 178 36 180 L42 186 L38 194 C26 196 12 196 6 190 Z"/>
+          <path d="M30 181 L22 166 L18 163 L21 170 L13 168 L22 175 L27 182 Z"/>
+          <path d="M36 182 L37 166 L34 159 L34 168 L29 165 L33 172 L33 182 Z"/>
+          <ellipse class="m-eye" cx="21" cy="186" rx="2.2" ry="1.3"/>
+        </g>
+      </svg>
+      <!-- Acordado: deitado, cabeça erguida a olhar para a câmara -->
+      <svg class="m-pose m-headup" viewBox="0 0 200 200" aria-hidden="true">
+        <g class="m-body">
+          <path d="M46 196 C44 176 64 160 98 158 C134 156 160 168 168 196 Z"/>
+          <path d="M150 196 C152 184 166 180 182 188 L186 196 Z"/>
+          <path d="M64 192 L22 190 L20 194 L64 196 Z"/>
+          <path d="M62 186 L30 182 L28 187 L62 191 Z"/>
+        </g>
+        <g class="m-head">
+          <path d="M58 182 C52 166 50 146 56 128 L66 130 C62 148 64 166 70 180 Z"/>
+          <path d="M48 110 C48 99 74 99 74 110 L68 136 C66 145 56 145 54 136 Z"/>
+          <path d="M50 104 L40 86 L33 83 L38 91 L29 90 L38 97 L48 108 Z"/>
+          <path d="M72 104 L82 86 L89 83 L84 91 L93 90 L84 97 L74 108 Z"/>
+          <ellipse class="m-eye" cx="56" cy="114" rx="2.4" ry="2"/>
+          <ellipse class="m-eye" cx="66" cy="114" rx="2.4" ry="2"/>
+        </g>
+      </svg>
+      <!-- De pé, quatro patas, costas arqueadas -->
+      <svg class="m-pose m-stand" viewBox="0 0 200 200" aria-hidden="true">
+        <path d="M58 118 C72 90 128 86 152 106 C160 114 158 130 150 134 C122 142 84 142 64 136 C56 132 54 126 58 118 Z"/>
+        <path d="M66 132 L60 164 L64 196 L68 196 L66 164 L72 134 Z"/>
+        <path d="M78 136 L76 166 L82 196 L86 196 L81 166 L84 136 Z"/>
+        <path d="M140 128 L156 158 L146 196 L150 196 L161 158 L148 126 Z"/>
+        <path d="M128 132 L142 162 L134 196 L138 196 L147 162 L136 130 Z"/>
+        <path d="M64 122 C52 124 42 132 34 142 L40 148 C48 140 58 134 68 132 Z"/>
+        <path d="M14 150 C18 140 30 136 42 140 L46 148 L36 156 C28 160 18 158 14 150 Z"/>
+        <path d="M36 140 L30 124 L26 119 L28 128 L21 125 L28 132 L33 141 Z"/>
+        <path d="M42 141 L44 124 L42 115 L41 125 L36 121 L40 130 L39 142 Z"/>
+        <ellipse class="m-eye" cx="28" cy="146" rx="2.2" ry="1.6"/>
+      </svg>
+      <!-- Erguido nas patas traseiras, braços a pender -->
+      <svg class="m-pose m-rear" viewBox="0 0 200 200" aria-hidden="true">
+        <path d="M96 132 L110 162 L100 196 L105 196 L116 162 L104 130 Z"/>
+        <path d="M88 132 L80 164 L90 196 L95 196 L86 164 L95 132 Z"/>
+        <path d="M84 138 C78 110 80 80 92 56 C100 50 110 54 112 64 C114 88 110 116 106 140 Z"/>
+        <path d="M88 66 C80 82 72 100 66 124 L62 142 L67 142 L72 124 C78 104 86 86 94 70 Z"/>
+        <path d="M108 66 C116 84 120 104 122 126 L127 144 L132 144 L126 124 C124 102 120 82 112 64 Z"/>
+        <path d="M94 58 C92 50 94 44 98 40 L106 42 C108 48 108 54 106 60 Z"/>
+        <path d="M88 24 C88 14 114 14 114 24 L108 48 C106 56 96 56 94 48 Z"/>
+        <path d="M90 18 L80 0 L73 -3 L78 5 L69 4 L78 11 L88 22 Z"/>
+        <path d="M112 18 L122 0 L129 -3 L124 5 L133 4 L124 11 L114 22 Z"/>
+        <ellipse class="m-eye" cx="96" cy="28" rx="2.6" ry="2.2"/>
+        <ellipse class="m-eye" cx="106" cy="28" rx="2.6" ry="2.2"/>
+      </svg>
+      <!-- A correr -->
+      <svg class="m-pose m-run" viewBox="0 0 200 200" aria-hidden="true">
+        <path d="M44 132 C66 110 128 108 164 124 C158 138 92 146 50 140 Z"/>
+        <path d="M58 136 L30 160 L14 168 L16 172 L34 165 L64 142 Z"/>
+        <path d="M70 140 L50 170 L44 190 L48 191 L56 172 L76 144 Z"/>
+        <path d="M150 128 L172 150 L190 160 L188 164 L168 156 L144 134 Z"/>
+        <path d="M140 134 L160 166 L170 188 L166 190 L154 168 L134 138 Z"/>
+        <path d="M50 128 C40 126 30 128 22 132 L24 138 C32 136 42 136 52 138 Z"/>
+        <path d="M2 136 C6 128 16 126 26 128 L30 134 L24 142 C14 144 6 142 2 136 Z"/>
+        <path d="M22 128 L32 116 L40 111 L34 118 L43 118 L32 123 L26 130 Z"/>
+        <ellipse class="m-eye" cx="12" cy="133" rx="2" ry="1.4"/>
+      </svg>
+    </template>
+
+    <!-- Desenho do Echo: pálido, magro, sem olhos, com duas membranas enormes para ouvir.
+         Poses: crouch (quatro patas), listen (cabeça erguida), rear (erguido nas patas
+         traseiras), crawl (de frente, espalmado dentro das vents), hand (só a mão). -->
+    <template id="tpl-echo">
+      <svg class="e-pose e-crouch" viewBox="0 0 200 200" aria-hidden="true">
+        <g class="e-legs">
+          <path d="M64 136 L54 168 L60 196 L64 196 L59 168 L70 138 Z"/>
+          <path d="M78 138 L74 170 L80 196 L84 196 L79 170 L84 139 Z"/>
+          <path d="M136 134 L150 160 L140 196 L144 196 L155 160 L142 130 Z"/>
+          <path d="M124 136 L134 164 L126 196 L130 196 L139 164 L130 134 Z"/>
+          <path class="e-claw-line" d="M60 196 L50 199 M62 196 L58 200 M64 196 L66 200 M80 196 L72 199 M84 196 L86 200"/>
+        </g>
+        <path class="e-body" d="M58 132 C70 110 128 106 146 122 C150 128 146 136 138 138 C110 142 84 142 62 140 C56 138 55 136 58 132 Z"/>
+        <path class="e-rib" d="M84 118 L88 136 M96 115 L99 137 M108 114 L110 137 M120 115 L121 137"/>
+        <path class="e-skin" d="M60 130 C50 132 44 140 40 150 L46 153 C50 144 56 138 64 136 Z"/>
+        <g class="e-head">
+          <path class="e-mem e-mem-l" d="M30 150 C22 136 22 118 32 102 C34 110 40 112 44 108 C44 118 50 122 56 120 C52 132 44 144 38 152 Z"/>
+          <path class="e-mem e-mem-r" d="M44 150 C54 134 70 124 88 122 C84 128 88 134 94 134 C88 140 90 146 96 148 C78 152 62 154 48 156 Z"/>
+          <path class="e-vein" d="M34 146 C30 132 30 118 34 106 M38 146 C40 134 44 124 50 118 M50 152 C62 144 74 136 86 128 M52 154 C66 150 80 148 92 146"/>
+          <path class="e-skin" d="M14 156 C16 146 52 144 56 154 C56 162 46 170 34 170 C24 170 14 164 14 156 Z"/>
+          <path class="e-fold" d="M22 154 C28 151 34 151 40 154"/>
+          <path class="e-mouth-closed" d="M28 163 L42 163"/>
+          <path class="e-mouth-open" d="M26 161 L46 161 L42 174 L30 174 Z"/>
+        </g>
+      </svg>
+      <svg class="e-pose e-listen" viewBox="0 0 200 200" aria-hidden="true">
+        <g class="e-legs">
+          <path d="M64 136 L56 168 L60 196 L64 196 L61 168 L70 138 Z"/>
+          <path d="M78 138 L76 170 L80 196 L84 196 L81 170 L84 139 Z"/>
+          <path d="M136 134 L150 160 L140 196 L144 196 L155 160 L142 130 Z"/>
+          <path d="M124 136 L134 164 L126 196 L130 196 L139 164 L130 134 Z"/>
+        </g>
+        <path class="e-body" d="M58 132 C70 110 128 106 146 122 C150 128 146 136 138 138 C110 142 84 142 62 140 C56 138 55 136 58 132 Z"/>
+        <path class="e-rib" d="M84 118 L88 136 M96 115 L99 137 M108 114 L110 137 M120 115 L121 137"/>
+        <path class="e-skin" d="M60 130 C52 120 48 110 46 100 L54 98 C56 108 62 120 68 128 Z"/>
+        <g class="e-head">
+          <path class="e-mem e-mem-r" d="M54 90 C56 70 70 50 92 38 C90 46 96 50 102 46 C100 56 106 60 114 58 C104 74 84 88 60 96 Z"/>
+          <path class="e-mem e-mem-l" d="M40 90 C24 76 16 56 18 30 C24 38 30 38 34 32 C36 42 42 46 48 44 C50 60 48 76 46 92 Z"/>
+          <path class="e-vein" d="M42 88 C30 72 24 54 22 36 M44 88 C42 72 42 58 46 46 M58 92 C70 76 82 60 96 44 M60 94 C76 84 92 72 110 60"/>
+          <path class="e-skin" d="M30 94 C32 84 64 84 66 94 C66 102 58 108 48 108 C38 108 30 102 30 94 Z"/>
+          <path class="e-fold" d="M38 92 C44 89 52 89 58 92"/>
+          <path class="e-mouth-closed" d="M42 101 L54 101"/>
+          <path class="e-mouth-open" d="M40 99 L56 99 L53 110 L43 110 Z"/>
+        </g>
+      </svg>
+      <svg class="e-pose e-rear" viewBox="0 0 200 200" aria-hidden="true">
+        <g class="e-legs">
+          <path d="M118 150 L132 172 L122 196 L127 196 L139 172 L126 146 Z"/>
+          <path d="M108 152 L118 176 L110 196 L115 196 L124 176 L114 150 Z"/>
+        </g>
+        <path class="e-body" d="M104 156 C96 130 90 104 92 82 C96 74 106 74 110 82 C114 106 118 132 122 154 Z"/>
+        <path class="e-rib" d="M96 96 L110 94 M96 106 L112 104 M98 116 L114 114 M100 126 L116 124"/>
+        <path class="e-skin" d="M94 86 C86 110 80 136 76 164 L72 182 L77 182 L82 164 C86 138 92 112 100 90 Z"/>
+        <path class="e-skin" d="M104 88 C102 116 100 140 98 166 L96 186 L101 186 L104 166 C106 140 108 116 110 92 Z"/>
+        <path class="e-claw-line" d="M72 182 L64 196 M74 182 L72 198 M77 182 L80 197 M96 186 L90 199 M99 186 L100 200 M101 186 L107 198"/>
+        <path class="e-skin" d="M96 78 C94 70 94 64 96 58 L104 58 C106 64 106 70 104 78 Z"/>
+        <g class="e-head">
+          <path class="e-mem e-mem-l" d="M88 52 C70 48 52 36 40 14 C48 18 54 14 56 8 C60 18 68 18 72 12 C74 26 82 36 92 42 Z"/>
+          <path class="e-mem e-mem-r" d="M112 52 C130 48 148 36 160 14 C152 18 146 14 144 8 C140 18 132 18 128 12 C126 26 118 36 108 42 Z"/>
+          <path class="e-vein" d="M88 48 C72 40 58 30 46 16 M90 44 C80 34 72 24 64 12 M112 48 C128 40 142 30 154 16 M110 44 C120 34 128 24 136 12"/>
+          <path class="e-skin" d="M84 52 C86 42 114 42 116 52 C116 62 108 68 100 68 C92 68 84 62 84 52 Z"/>
+          <path class="e-mouth-closed" d="M94 61 L106 61"/>
+          <path class="e-mouth-open" d="M92 59 L108 59 L105 70 L95 70 Z"/>
+        </g>
+      </svg>
+      <svg class="e-pose e-crawl" viewBox="0 0 200 200" aria-hidden="true">
+        <path class="e-body" d="M80 136 C82 108 118 108 120 136 Z"/>
+        <path class="e-rib" d="M88 122 L112 122 M86 130 L114 130"/>
+        <g class="e-arms">
+          <path class="e-skin" d="M80 150 C64 154 46 160 34 170 L36 175 C50 167 66 161 82 157 Z"/>
+          <path class="e-skin" d="M120 150 C136 154 154 160 166 170 L164 175 C150 167 134 161 118 157 Z"/>
+          <path class="e-claw-line" d="M34 171 L16 176 M35 173 L18 183 M36 175 L26 190 M166 171 L184 176 M165 173 L182 183 M164 175 L174 190"/>
+        </g>
+        <g class="e-head">
+          <path class="e-mem e-mem-l" d="M76 140 C58 128 36 124 14 130 C20 134 18 140 12 144 C22 146 24 152 20 158 C40 156 60 152 76 148 Z"/>
+          <path class="e-mem e-mem-r" d="M124 140 C142 128 164 124 186 130 C180 134 182 140 188 144 C178 146 176 152 180 158 C160 156 140 152 124 148 Z"/>
+          <path class="e-vein" d="M74 143 C58 140 42 140 26 142 M126 143 C142 140 158 140 174 142"/>
+          <path class="e-skin" d="M74 142 C76 128 124 128 126 142 C126 154 114 162 100 162 C86 162 74 154 74 142 Z"/>
+          <path class="e-mouth-closed" d="M93 154 L107 154"/>
+          <path class="e-mouth-open" d="M90 151 L110 151 L106 162 L94 162 Z"/>
+        </g>
+      </svg>
+      <svg class="e-pose e-hand" viewBox="0 0 200 200" aria-hidden="true">
+        <path class="e-skin" d="M-10 150 C20 144 50 140 76 136 L78 146 C52 150 22 158 -10 166 Z"/>
+        <path class="e-claw" d="M74 134 L126 116 L128 121 L78 142 Z"/>
+        <path class="e-claw" d="M76 138 L134 138 L134 143 L78 145 Z"/>
+        <path class="e-claw" d="M76 142 L122 162 L119 167 L74 148 Z"/>
+        <path class="e-claw" d="M70 134 L100 104 L104 107 L76 138 Z"/>
+      </svg>
+    </template>
+
+    <!-- Efeito de scanlines por cima de tudo -->
+    <div id="scanlines"></div>
+  </main>
+
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

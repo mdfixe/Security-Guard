@@ -1,0 +1,40 @@
+SONS DO SECURITY GUARD
+======================
+
+Todos os sons destas pastas foram gerados pelo próprio jogo (síntese),
+para o jogo já ter som completo. Podes trocá-los por gravações reais
+quando quiseres.
+
+COMO TROCAR UM SOM
+1. Arranja um som (por exemplo em freesound.org, procura licença CC0).
+2. Converte-o para .ogg (ex.: com o Audacity: Ficheiro > Exportar > OGG).
+3. Dá-lhe EXATAMENTE o mesmo nome do ficheiro que queres substituir
+   e põe-no na mesma pasta (apaga ou substitui o antigo).
+4. Atualiza o jogo no browser.
+
+Se preferires outro nome ou outra pasta, muda o caminho no topo do
+ficheiro audio.js (objeto AUDIO).
+
+SE UM FICHEIRO FALTAR
+O jogo não pára: usa um som gerado no lugar dele e escreve na consola
+do browser (F12) qual é o ficheiro em falta.
+
+IMPORTANTE
+Os sons só são carregados destas pastas quando abres o jogo com o
+Live Server (http://127.0.0.1:5500/...). Se abrires o index.html com
+duplo clique (file://), o browser bloqueia os ficheiros e o jogo usa
+os sons gerados (soam iguais aos que vêm aqui).
+
+PASTAS
+ambience/    ambiente contínuo (loops) e pequenos eventos aleatórios
+cameras/     abrir/fechar monitor, troca de câmara, estática
+office/      porta, luz, grelha da vent, falta de energia
+monsters/    pistas do Black, do Watcher, do Morrow e do Echo
+jumpscares/  sustos (black.ogg, watcher.ogg, morrow.ogg, echo.ogg)
+ui/          menu, início da noite, 6 AM
+
+Sons em loop (estão em .wav para começarem e acabarem sem "salto"):
+building_hum, ventilation, pressure_drone, late_night, static_loop,
+crt_hum, light_buzz, watcher_whine, morrow_breath, vent_rattle
+Se trocares um destes, usa também .wav e um som que encaixe o fim
+no início (no Audacity: Efeitos > Crossfade, ou corta num ponto calmo).

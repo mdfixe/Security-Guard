@@ -1,0 +1,3253 @@
+/* =========================================================
+   SECURITY GUARD — aparência
+   Todas as medidas usam "cqh" (1% da altura do jogo) para o
+   jogo ficar igual em qualquer tamanho de janela.
+   ========================================================= */
+
+:root {
+  --ink: #d8d4c4;          /* texto principal (branco sujo) */
+  --ink-dim: #8a8778;      /* texto secundário */
+  --crt: #9fbf96;          /* verde dos monitores */
+  --crt-dim: #4d6249;
+  --led-red: #ff3b2f;
+  --led-amber: #ffb43a;
+  --font: 'VT323', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  font-family: var(--font);
+  color: var(--ink);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Área do jogo: sempre 16:9, ocupa o máximo possível da janela */
+#game {
+  position: relative;
+  width: min(100vw, 177.78vh);
+  height: min(100vh, 56.25vw);
+  overflow: hidden;
+  background: #000;
+  container-type: size;
+}
+
+.hidden { display: none !important; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+h1, p { margin: 0; font-weight: normal; }
+
+
+/* =========================================================
+   SALA DE SEGURANÇA
+   ========================================================= */
+
+#office {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.office-wall {
+  position: absolute;
+  inset: 0 0 18% 0;
+  background:
+    radial-gradient(ellipse 32% 28% at 50% 0%, rgba(255, 228, 170, .10), transparent 70%),
+    radial-gradient(ellipse 22% 32% at 14% 62%, rgba(0, 0, 0, .5), transparent 70%),
+    radial-gradient(ellipse 14% 22% at 88% 30%, rgba(70, 52, 22, .35), transparent 70%),
+    radial-gradient(ellipse 6% 30% at 31% 25%, rgba(0, 0, 0, .35), transparent 70%),
+    repeating-linear-gradient(90deg, transparent 0 calc(12.5% - 2px), rgba(0, 0, 0, .35) calc(12.5% - 2px) 12.5%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, .015) 0 1px, transparent 1px 4px),
+    linear-gradient(#272723, #1b1b18 70%, #141412);
+}
+
+.office-floor {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 18%;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .45) 0 2px, transparent 2px 10%),
+    linear-gradient(#12120f, #070706);
+  border-top: .5cqh solid #0a0a09;
+}
+
+.pipe-top {
+  position: absolute;
+  top: 4%; left: 0; right: 0;
+  height: 2.4cqh;
+  background: linear-gradient(#4a4842, #23221f 60%, #0e0e0c);
+  box-shadow: 0 1cqh 1.5cqh rgba(0, 0, 0, .6);
+}
+
+.pipe-top-2 { display: none; }
+
+.pipe-side {
+  position: absolute;
+  top: 4%; left: 7%;
+  width: 2.2cqh;
+  height: 74%;
+  background: linear-gradient(90deg, #3e3c37, #1c1b18 60%, #0c0c0b);
+  box-shadow: 1cqh 0 1.5cqh rgba(0, 0, 0, .5);
+}
+
+.wall-vent {
+  position: absolute;
+  left: 13%; top: 17%;
+  width: 13cqh; height: 8cqh;
+  background: repeating-linear-gradient(#0b0b0a 0 .6cqh, #2c2c28 .6cqh 1.2cqh);
+  border: .5cqh solid #33332e;
+  box-shadow: 0 .6cqh 1cqh rgba(0, 0, 0, .6);
+}
+
+.wall-note {
+  position: absolute;
+  left: 21%; top: 42%;
+  padding: 1.2cqh 1.6cqh;
+  background: #b9b29a;
+  color: #4a1310;
+  font-size: 3.2cqh;
+  line-height: .9;
+  transform: rotate(-7deg);
+  box-shadow: .5cqh .8cqh 1cqh rgba(0, 0, 0, .6);
+  filter: brightness(.5) sepia(.4);
+}
+
+.wall-note::before {   /* fita-cola */
+  content: '';
+  position: absolute;
+  top: -1.2cqh; left: 30%;
+  width: 4.5cqh; height: 2cqh;
+  background: rgba(220, 220, 200, .45);
+}
+
+/* Night 2: a sala fica no nível subterrâneo (betão mais frio, mais tubos) */
+.map-underground .office-wall {
+  background:
+    radial-gradient(ellipse 30% 26% at 50% 0%, rgba(200, 220, 255, .06), transparent 70%),
+    radial-gradient(ellipse 22% 32% at 14% 62%, rgba(0, 0, 0, .55), transparent 70%),
+    radial-gradient(ellipse 18% 26% at 86% 40%, rgba(40, 50, 40, .4), transparent 70%),
+    radial-gradient(ellipse 4% 40% at 60% 30%, rgba(0, 0, 0, .35), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 calc(16.6% - 2px), rgba(0, 0, 0, .3) calc(16.6% - 2px) 16.6%),
+    repeating-linear-gradient(90deg, transparent 0 calc(20% - 2px), rgba(0, 0, 0, .25) calc(20% - 2px) 20%),
+    linear-gradient(#22252a, #181a1d 70%, #101113);
+}
+
+.map-underground .pipe-top-2 {
+  display: block;
+  position: absolute;
+  top: 8.5%; left: 0; right: 0;
+  height: 1.6cqh;
+  background: linear-gradient(#5a4a2c, #2c2416 60%, #0e0c08);
+  box-shadow: 0 .8cqh 1.2cqh rgba(0, 0, 0, .6);
+}
+
+.map-underground .wall-note { filter: brightness(.4) sepia(.2) hue-rotate(160deg); }
+
+
+/* ----- Porta e corredor ----- */
+
+#doorway {
+  position: absolute;
+  left: 36%; top: 12%;
+  width: 28%; height: 68%;
+  overflow: hidden;
+  background: #000;
+}
+
+.door-frame {
+  position: absolute;
+  left: calc(36% - 1.8cqh);
+  top: calc(12% - 1.8cqh);
+  width: calc(28% + 3.6cqh);
+  height: calc(68% + 1.8cqh);
+  border: 1.8cqh solid #1d1d1a;
+  border-bottom: none;
+  box-shadow:
+    inset 0 0 0 .4cqh #0a0a09,
+    0 0 0 .4cqh #34342f,
+    0 0 4cqh rgba(0, 0, 0, .8);
+  pointer-events: none;
+}
+
+/* Sala genérica em perspetiva (usada no corredor e nas câmaras).
+   --bx1/--by1/--bx2/--by2 definem a parede do fundo. */
+.room {
+  position: absolute;
+  inset: 0;
+  --bx1: 30%; --by1: 25%;
+  --bx2: 70%; --by2: 65%;
+}
+
+.room > .r-ceiling,
+.room > .r-floor,
+.room > .r-wall-l,
+.room > .r-wall-r {
+  position: absolute;
+  inset: 0;
+}
+
+.r-ceiling {
+  clip-path: polygon(0 0, 100% 0, var(--bx2) var(--by1), var(--bx1) var(--by1));
+  background: linear-gradient(#121211, #272724);
+}
+
+.r-floor {
+  clip-path: polygon(0 100%, 100% 100%, var(--bx2) var(--by2), var(--bx1) var(--by2));
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .25) 0 2px, transparent 2px 8%),
+    linear-gradient(#2c2b26, #1a1916);
+}
+
+.r-wall-l {
+  clip-path: polygon(0 0, var(--bx1) var(--by1), var(--bx1) var(--by2), 0 100%);
+  background: linear-gradient(90deg, #1d1d1a, #3a3934);
+}
+
+.r-wall-r {
+  clip-path: polygon(100% 0, var(--bx2) var(--by1), var(--bx2) var(--by2), 100% 100%);
+  background: linear-gradient(-90deg, #1d1d1a, #3a3934);
+}
+
+.r-back {
+  position: absolute;
+  left: var(--bx1);
+  top: var(--by1);
+  width: calc(var(--bx2) - var(--bx1));
+  height: calc(var(--by2) - var(--by1));
+  background: #43423b;
+}
+
+#corridor {
+  --bx1: 40%; --by1: 30%;
+  --bx2: 60%; --by2: 62%;
+}
+
+#corridor .r-back { background: #0d0d0c; }
+
+.corr-pipe { display: none; }
+
+.map-underground #corridor .r-wall-l,
+.map-underground #corridor .r-wall-r { background: linear-gradient(90deg, #1a1c1e, #34373a); }
+.map-underground #corridor .r-wall-r { background: linear-gradient(-90deg, #1a1c1e, #34373a); }
+
+.map-underground .corr-pipe {
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: #4a4232;
+}
+.map-underground .corr-pipe-l { clip-path: polygon(0 18%, 40% 36%, 40% 37.5%, 0 23%); }
+.map-underground .corr-pipe-r { clip-path: polygon(100% 18%, 60% 36%, 60% 37.5%, 100% 23%); }
+
+/* Escuridão do corredor: sem luz é TOTALMENTE preto */
+#corridor-dark {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: #000;
+}
+
+/* Luz ligada: uma pequena área iluminada no chão do corredor */
+.light-on #corridor { filter: sepia(.45) brightness(1.2); }
+
+.light-on #corridor-dark {
+  background: radial-gradient(ellipse 80% 62% at 50% 72%,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, .15) 45%,
+    rgba(0, 0, 0, .9) 85%);
+  animation: light-flicker .3s steps(1);
+}
+
+@keyframes light-flicker {
+  0%   { opacity: .4; }
+  30%  { opacity: 1; }
+  45%  { opacity: .6; }
+  60%  { opacity: 1; }
+}
+
+/* Monstros no corredor (o JS só lhes dá estas classes com a luz ligada) */
+#corridor .figure {
+  display: none;
+  z-index: 2;
+  left: 50%;
+}
+
+#corridor .figure.near { display: block; bottom: 2%;  height: 88%; }
+#corridor .figure.far  { display: block; bottom: 39%; height: 23%; }
+
+#corridor-watcher.near { bottom: 1%;  height: 97%; }
+#corridor-watcher.far  { bottom: 39%; height: 28%; }
+
+/* Quando há dois monstros, ficam lado a lado */
+#corridor .figure.near.side-left  { left: 30%; }
+#corridor .figure.near.side-right { left: 70%; }
+#corridor .figure.far.side-left   { left: 45%; }
+#corridor .figure.far.side-right  { left: 55%; }
+#corridor .figure.near.side-center { left: 50%; }
+#corridor .figure.far.side-center  { left: 50%; }
+
+/* Olhos no escuro (falta de energia) */
+#powerout-eyes {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+
+.eyes-visible #powerout-eyes {
+  display: block;
+  animation: eyes-flicker 1.6s infinite;
+}
+
+#powerout-eyes span {
+  position: absolute;
+  top: 13%;
+  width: 2cqh;
+  height: 1.3cqh;
+  border-radius: 50%;
+  background: #d8d2b8;
+  box-shadow: 0 0 1.4cqh .3cqh rgba(255, 240, 200, .6);
+  translate: -50% 0;
+}
+
+#powerout-eyes span:first-child { left: 45%; }
+#powerout-eyes span:last-child  { left: 55%; }
+
+#powerout-eyes[data-monster="watcher"] span {
+  top: 6%;
+  width: 1.1cqh;
+  height: .9cqh;
+  background: #eef2ff;
+  box-shadow: 0 0 1.4cqh .4cqh rgba(220, 230, 255, .8);
+}
+#powerout-eyes[data-monster="watcher"] span:first-child { left: 47.5%; top: 5.6%; }
+#powerout-eyes[data-monster="watcher"] span:last-child  { left: 52.5%; top: 6.6%; }
+
+@keyframes eyes-flicker {
+  0%, 100% { opacity: 1; }
+  48% { opacity: 1; }
+  50% { opacity: 0; }
+  56% { opacity: 1; }
+  80% { opacity: .3; }
+  84% { opacity: 1; }
+}
+
+/* Porta metálica que desce */
+#door {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  transform: translateY(-101%);
+  transition: transform .22s cubic-bezier(.5, 0, .8, .3);
+  background:
+    repeating-linear-gradient(0deg,
+      #151513 0 .5cqh,
+      #3b3a34 .5cqh 1cqh,
+      #2b2a26 1cqh 6cqh);
+  box-shadow: inset 0 0 6cqh rgba(0, 0, 0, .85);
+}
+
+.door-closed #door { transform: translateY(0); }
+
+.light-on.door-closed #door { filter: brightness(1.35) sepia(.25); }
+
+.door-hazard {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 6%;
+  background: repeating-linear-gradient(45deg, #7a611c 0 2cqh, #111 2cqh 4cqh);
+  filter: brightness(.7);
+}
+
+/* Pancada na porta fechada (ataque bloqueado) */
+#door.thud { animation: door-thud .45s; }
+
+@keyframes door-thud {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-.9cqh, .4cqh); }
+  35% { transform: translate(.8cqh, -.3cqh); }
+  55% { transform: translate(-.4cqh, .2cqh); }
+  75% { transform: translate(.2cqh, 0); }
+}
+
+/* Janela da porta: só mostra alguma coisa com a luz ligada */
+.door-slot {
+  position: absolute;
+  left: 30%; top: 11%;
+  width: 40%; height: 9%;
+  overflow: hidden;
+  background: #030303;
+  border: .5cqh solid #111;
+  box-shadow: inset 0 0 1.5cqh #000, 0 0 0 .3cqh #3b3a34;
+}
+
+.light-on .door-slot {
+  background: radial-gradient(ellipse at 50% 90%, #5a503c, #1c1913 75%);
+}
+
+.slot-figure {
+  display: none;
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+}
+
+.slot-figure.visible { display: block; }
+.slot-figure.side-left   { left: 30%; }
+.slot-figure.side-right  { left: 70%; }
+.slot-figure.side-center { left: 50%; }
+
+.slot-black {
+  bottom: -55%;
+  width: 34%; height: 150%;
+  border-radius: 46% 46% 30% 30%;
+  background: #040404;
+}
+
+.slot-black::before,
+.slot-black::after {        /* olhos discretos */
+  content: '';
+  position: absolute;
+  top: 26%;
+  width: 11%; height: 9%;
+  border-radius: 50%;
+  background: #6d6a5c;
+}
+.slot-black::before { left: 28%; }
+.slot-black::after  { right: 28%; }
+
+.slot-watcher {
+  bottom: -85%;
+  width: 22%; height: 165%;
+  border-radius: 48% 48% 40% 40% / 40% 40% 60% 60%;
+  background: radial-gradient(ellipse at 45% 30%, #b3b1a8, #6f6d66 75%);
+  rotate: 8deg;
+}
+
+.slot-watcher::before,
+.slot-watcher::after {
+  content: '';
+  position: absolute;
+  top: 30%;
+  width: 26%; height: 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f4f7ff 0 40%, #1e1e1c 50%, rgba(30, 30, 28, 0) 74%);
+}
+.slot-watcher::before { left: 16%; }
+.slot-watcher::after  { right: 16%; top: 33%; }
+
+
+/* ----- Botões ----- */
+
+.ctrl-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 2.2cqh 1cqh 2.2cqh 4.2cqh;
+  font-size: 3.2cqh;
+  letter-spacing: .02em;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: left;
+  color: var(--ink);
+  background: linear-gradient(#3a3934, #23221f);
+  border: .4cqh solid #0a0a09;
+  border-radius: 0;
+  box-shadow:
+    inset 0 .3cqh 0 rgba(255, 255, 255, .08),
+    inset 0 -.5cqh 0 rgba(0, 0, 0, .5),
+    0 .6cqh 0 #0a0a09;
+  text-shadow: 0 0 .6cqh rgba(216, 212, 196, .3);
+  transition: filter .1s;
+}
+
+.ctrl-btn:hover { filter: brightness(1.3); }
+
+.ctrl-btn:active {
+  transform: translateY(.4cqh);
+  box-shadow: inset 0 .3cqh .6cqh rgba(0, 0, 0, .6), 0 .2cqh 0 #0a0a09;
+}
+
+.ctrl-btn:focus { outline: none; }
+
+.ctrl-btn:disabled {
+  cursor: not-allowed;
+  filter: brightness(.45);
+  transform: none;
+}
+
+/* LED do botão */
+.ctrl-btn::before {
+  content: '';
+  position: absolute;
+  left: 1.5cqh; top: 50%;
+  width: 1.4cqh; height: 1.4cqh;
+  translate: 0 -50%;
+  background: #2a0d0b;
+  border: .2cqh solid #000;
+}
+
+/* Botão ligado (porta fechada / luz acesa) */
+.ctrl-btn.is-active {
+  color: #fff;
+  background: linear-gradient(#1b1a17, #2a2925);
+  box-shadow: inset 0 .5cqh 1cqh rgba(0, 0, 0, .7), 0 .2cqh 0 #0a0a09;
+  transform: translateY(.4cqh);
+}
+
+#btn-door.is-active::before {
+  background: var(--led-red);
+  box-shadow: 0 0 1.2cqh var(--led-red);
+}
+
+#btn-light.is-active::before {
+  background: var(--led-amber);
+  box-shadow: 0 0 1.2cqh var(--led-amber);
+}
+
+#controls {
+  position: absolute;
+  left: 67%; top: 30%;
+  width: 17.5%;
+  padding: 2.4cqh 1.8cqh;
+  display: flex;
+  flex-direction: column;
+  gap: 2.6cqh;
+  background:
+    linear-gradient(rgba(255, 255, 255, .04), transparent 30%),
+    #22221e;
+  border: .4cqh solid #0b0b0a;
+  box-shadow:
+    inset 0 0 0 .3cqh #393934,
+    .6cqh 1cqh 2.5cqh rgba(0, 0, 0, .7);
+}
+
+/* Parafusos do painel */
+#controls::before,
+#controls::after {
+  content: '';
+  position: absolute;
+  top: .9cqh;
+  width: .9cqh; height: .9cqh;
+  border-radius: 50%;
+  background: #4a4943;
+  box-shadow: 0 0 0 .15cqh #111;
+}
+#controls::before { left: .9cqh; }
+#controls::after  { right: .9cqh; }
+
+#desk {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 14%;
+  background:
+    linear-gradient(#2e2a22 0 .8cqh, #1a1814 .8cqh, #0b0a09);
+  box-shadow: 0 -1cqh 3cqh rgba(0, 0, 0, .7);
+}
+
+#btn-cameras {
+  position: absolute;
+  left: 50%; bottom: 3%;
+  width: 34%;
+  translate: -50% 0;
+  padding: 2cqh;
+  font-size: 4cqh;
+  letter-spacing: .3em;
+  text-align: center;
+}
+
+#btn-cameras::before { display: none; }
+
+/* Pequenas falhas na luz da sala */
+.office-flicker {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  animation: office-flicker 9s infinite;
+}
+
+@keyframes office-flicker {
+  0%, 61%, 63%, 65%, 100% { opacity: 0; }
+  62% { opacity: .35; }
+  64% { opacity: .2; }
+}
+
+/* Falta de energia: tudo escurece */
+#office-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s;
+}
+
+.power-out #office-dim { opacity: .9; }
+
+/* Falha elétrica rápida (4–6 AM) */
+.power-flicker #office-dim { opacity: .6; transition: none; }
+.power-out #doorway { z-index: 11; }
+.power-out #office .ctrl-btn { pointer-events: none; filter: brightness(.35); }
+
+
+/* =========================================================
+   MONSTROS (desenhados só com CSS)
+   ========================================================= */
+
+.figure {
+  position: absolute;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+/* ----- BLACK: silhueta preta, olhos discretos ----- */
+
+.creature { aspect-ratio: 38 / 100; }
+
+.creature > div {
+  position: absolute;
+  background: #050505;
+}
+
+.c-head {
+  left: 28%; top: 0;
+  width: 44%; height: 17%;
+  border-radius: 45% 45% 40% 40% / 50% 50% 45% 45%;
+}
+
+.c-body {
+  left: 22%; top: 15%;
+  width: 56%; height: 42%;
+  clip-path: polygon(22% 0, 78% 0, 100% 22%, 84% 100%, 16% 100%, 0 22%);
+}
+
+.c-arm {
+  top: 17%;
+  width: 11%; height: 60%;
+  border-radius: 50% 50% 40% 40%;
+  transform-origin: top center;
+}
+.c-arm-l { left: 7%;  rotate: 5deg; }
+.c-arm-r { right: 7%; rotate: -5deg; }
+
+.c-leg { top: 54%; width: 14%; height: 46%; }
+.c-leg-l { left: 30%; }
+.c-leg-r { right: 30%; }
+
+.c-eye {
+  position: absolute;
+  top: 42%;
+  width: 13%; height: 9%;
+  border-radius: 50%;
+  background: #8d897a;
+  box-shadow: 0 0 3px rgba(200, 195, 170, .5);
+}
+.c-eye:nth-child(1) { left: 24%; }
+.c-eye:nth-child(2) { right: 24%; }
+
+/* ----- WATCHER: muito alto, magro, cinzento pálido, sem rosto ----- */
+
+.watcher { aspect-ratio: 24 / 100; }
+
+.watcher > div { position: absolute; }
+
+.w-head {
+  left: 30%; top: 0;
+  width: 40%; height: 10.5%;
+  border-radius: 48% 48% 42% 42% / 38% 38% 62% 62%;
+  background: radial-gradient(ellipse at 40% 35%, #c9c7bd, #95938a 60%, #6c6a63);
+  rotate: 14deg;
+  transform-origin: 50% 100%;
+  transition: rotate .25s, translate .25s;
+  animation: head-twitch 6s infinite;
+}
+
+@keyframes head-twitch {
+  0%, 86%, 100% { transform: none; }
+  87% { transform: rotate(-9deg); }
+  89% { transform: rotate(6deg); }
+  91% { transform: none; }
+}
+
+.w-eye {                /* olho claro dentro de uma órbita escura */
+  position: absolute;
+  top: 38%;
+  width: 22%; height: 13%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f4f7ff 0 34%, #2a2a27 46%, rgba(42, 42, 39, 0) 72%);
+  box-shadow: 0 0 3px rgba(220, 230, 255, .5);
+  transition: box-shadow .3s, scale .3s;
+}
+.w-eye:nth-child(1) { left: 18%; }
+.w-eye:nth-child(2) { right: 18%; top: 41%; }
+
+.w-neck {
+  left: 45%; top: 8.5%;
+  width: 10%; height: 6%;
+  background: linear-gradient(90deg, #7d7b73, #b4b2a9, #7d7b73);
+}
+
+.w-torso {
+  left: 25%; top: 13.5%;
+  width: 50%; height: 34%;
+  background: linear-gradient(90deg, #7f7d75, #c2c0b6 45%, #8a8880);
+  clip-path: polygon(6% 6%, 94% 0, 100% 12%, 82% 100%, 20% 100%, 0 16%);
+}
+
+.w-arm {
+  top: 14%;
+  width: 8%; height: 55%;
+  border-radius: 40%;
+  background: linear-gradient(90deg, #77756d, #b6b4ab, #77756d);
+  transform-origin: top center;
+  transition: rotate .3s;
+}
+.w-arm-l { left: 12%;  top: 15.5%; rotate: 4deg; }
+.w-arm-r { right: 10%; top: 13%;   rotate: -7deg; }
+
+.w-hand {               /* dedos compridos */
+  position: absolute;
+  left: -40%; top: 97%;
+  width: 180%; height: 13%;
+  background: #8f8d85;
+  clip-path: polygon(20% 0, 80% 0, 100% 100%, 88% 100%, 72% 30%, 64% 100%, 54% 30%, 46% 100%, 36% 30%, 26% 100%, 12% 100%, 0 100%);
+}
+
+.w-leg {
+  top: 46%;
+  width: 11%; height: 54%;
+  background: linear-gradient(90deg, #6f6d66, #a8a69d, #6f6d66);
+}
+.w-leg-l { left: 33%; rotate: 2deg; }
+.w-leg-r { right: 33%; rotate: -1deg; }
+
+
+/* =========================================================
+   CÂMARAS
+   ========================================================= */
+
+#camera-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .015) 0 1px, transparent 1px 6px),
+    #0a0b0a;
+}
+
+#cam-screen {
+  position: absolute;
+  left: 2.5%; top: 4%;
+  width: 66%; bottom: 18%;
+  overflow: hidden;
+  background: #000;
+  border: .7cqh solid #1b1c1a;
+  border-radius: 1.4cqh;   /* curvatura de monitor CRT */
+  box-shadow: 0 0 0 .3cqh #333, 0 0 4cqh rgba(0, 0, 0, .9);
+}
+
+/* Cor de câmara de vigilância (esverdeada, pouco contraste) */
+#cam-view {
+  position: absolute;
+  inset: 0;
+  filter: grayscale(.7) sepia(.35) hue-rotate(55deg) saturate(1.3) contrast(1.15) brightness(.8);
+}
+
+#cam-view::after {    /* vinheta */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, .78) 100%);
+  pointer-events: none;
+}
+
+.scene-set { display: none; }
+.scene-set.active { display: block; }
+
+.scene { display: none; }
+.scene.active { display: block; }
+
+.prop { position: absolute; }
+
+/* Monstros nas câmaras: posição definida por câmara (data-spot) */
+.cam-monster {
+  z-index: 3;
+  left: calc(var(--x, 50%) + var(--drift, 0%));
+  bottom: var(--y, 30%);
+  height: calc(var(--h, 36%) * var(--scale, 1));
+  transform-origin: bottom center;
+  animation: creature-sway 3.2s ease-in-out infinite alternate;
+}
+
+#cam-watcher { --scale: 1.2; animation-duration: 4.5s; }
+
+@keyframes creature-sway {
+  from { rotate: -1.5deg; }
+  to   { rotate: 1.5deg; }
+}
+
+/* Night 1 — Facility */
+.cam-monster[data-spot="facility-cam1"] { --x: 56%; --y: 30%; --h: 36%; }
+.cam-monster[data-spot="facility-cam2"] { --x: 42%; --y: 31%; --h: 44%; }
+.cam-monster[data-spot="facility-cam3"] { --x: 61%; --y: 30%; --h: 36%; }
+.cam-monster[data-spot="facility-cam4"] { --x: 50%; --y: 18%; --h: 44%; }
+.cam-monster[data-spot="facility-cam5"] { --x: 36%; --y: 2%;  --h: 86%; }
+
+/* Night 2 — Underground */
+.cam-monster[data-spot="underground-cam1"] { --x: 50%; --y: 36%; --h: 34%; }
+.cam-monster[data-spot="underground-cam2"] { --x: 50%; --y: 24%; --h: 40%; }
+.cam-monster[data-spot="underground-cam3"] { --x: 20%; --y: 20%; --h: 48%; }
+.cam-monster[data-spot="underground-cam4"] { --x: 50%; --y: 38%; --h: 30%; }
+.cam-monster[data-spot="underground-cam5"] { --x: 46%; --y: 36%; --h: 34%; filter: brightness(.55); }
+.cam-monster[data-spot="underground-cam6"] { --x: 27%; --y: 3%;  --h: 78%; }
+
+/* ----- NIGHT 1: CAM 01 — Entrance ----- */
+.scene-entrance { --bx1: 28%; --by1: 22%; --bx2: 72%; --by2: 68%; }
+
+.p-glass-doors {
+  left: 40%; top: 32%;
+  width: 20%; height: 36%;
+  background: linear-gradient(105deg, #141c20 0 38%, #33444b 44%, #141c20 52%);
+  border: .7cqh solid #5a5a52;
+}
+.p-glass-doors::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: .6cqh;
+  background: #5a5a52;
+}
+
+.p-exit {
+  left: 45.5%; top: 24.5%;
+  width: 9%; height: 5%;
+  display: grid;
+  place-items: center;
+  font-size: 2.6cqh;
+  color: #9be29a;
+  background: #183a1c;
+  box-shadow: 0 0 2cqh rgba(120, 255, 120, .35);
+}
+
+.p-mat {
+  left: 0; top: 0; width: 100%; height: 100%;
+  clip-path: polygon(38% 70%, 62% 70%, 66% 80%, 34% 80%);
+  background: #141310;
+}
+
+.p-bench {
+  left: 7%; top: 64%;
+  width: 14%; height: 4%;
+  background: #23221e;
+  box-shadow: 0 1.5cqh 0 -.5cqh #111;
+}
+
+/* ----- NIGHT 1: CAM 02 — Storage ----- */
+.scene-storage { --bx1: 30%; --by1: 18%; --bx2: 70%; --by2: 62%; }
+
+.p-shelf {
+  top: 10%;
+  width: 21%; height: 84%;
+  border-left: 1cqh solid #4a4943;
+  border-right: 1cqh solid #4a4943;
+  background:
+    repeating-linear-gradient(transparent 0 11cqh, #5b5a52 11cqh 12.4cqh),
+    repeating-linear-gradient(90deg, #3a3328 0 4cqh, transparent 4cqh 5cqh, #2d2820 5cqh 9cqh, transparent 9cqh 11cqh);
+}
+.p-shelf-l { left: 2%; }
+.p-shelf-r { right: 2%; }
+
+.p-boxes {
+  left: 53%; top: 47%;
+  width: 13%; height: 15%;
+  background:
+    linear-gradient(#4a4234, #3a3328) 0 100% / 100% 55% no-repeat,
+    linear-gradient(#55493a, #433a2d) 20% 0 / 60% 45% no-repeat;
+}
+
+.p-bulb {
+  left: 50%; top: 0;
+  width: .3cqh; height: 13%;
+  background: #111;
+}
+.p-bulb::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 100%;
+  width: 2.4cqh; height: 3cqh;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: #e8e2c0;
+  box-shadow: 0 0 5cqh 2cqh rgba(255, 240, 190, .25);
+}
+
+/* ----- NIGHT 1: CAM 03 — Main Hall ----- */
+.scene-hall { --bx1: 12%; --by1: 22%; --bx2: 88%; --by2: 60%; }
+
+.scene-hall .r-floor {
+  background: repeating-conic-gradient(#2f2e29 0 25%, #1c1b18 0 50%) 0 0 / 7% 14%;
+}
+
+.p-pillar {
+  top: 14%;
+  width: 6%; height: 78%;
+  background: linear-gradient(90deg, #262622, #4f4e46 40%, #262622);
+}
+.p-pillar-a { left: 25%; }
+.p-pillar-b { left: 69%; }
+
+.p-banner {
+  left: 38%; top: 27%;
+  width: 24%; height: 7%;
+  display: grid;
+  place-items: center;
+  font-size: 2.8cqh;
+  letter-spacing: .3em;
+  color: #9a8e80;
+  background: #3a1d1a;
+}
+
+.p-table {
+  left: 43%; top: 63%;
+  width: 14%; height: 4%;
+  background: #34332d;
+  box-shadow: 0 2cqh 0 -1.4cqh #161613;
+}
+
+/* ----- NIGHT 1: CAM 04 — Corridor ----- */
+.scene-corridor { --bx1: 44%; --by1: 34%; --bx2: 56%; --by2: 58%; }
+.scene-corridor .r-back { background: #24241f; }
+
+.p-sdoor {
+  left: 0; top: 0; width: 100%; height: 100%;
+  background: #1a1a17;
+}
+.p-sdoor-l1 { clip-path: polygon(10% 27%, 19% 33%, 19% 76%, 10% 82%); }
+.p-sdoor-l2 { clip-path: polygon(28% 36%, 33% 39%, 33% 66%, 28% 69%); }
+.p-sdoor-r1 { clip-path: polygon(90% 27%, 81% 33%, 81% 76%, 90% 82%); }
+.p-sdoor-r2 { clip-path: polygon(72% 36%, 67% 39%, 67% 66%, 72% 69%); }
+
+.p-clight {
+  background: #8a887a;
+  box-shadow: 0 0 2cqh rgba(255, 250, 220, .35);
+}
+.p-clight-1 { left: 46%;   top: 5%;  width: 8%;   height: 2%; }
+.p-clight-2 { left: 48.3%; top: 19%; width: 3.4%; height: 1.2%; }
+.p-clight-3 { left: 49.3%; top: 28%; width: 1.4%; height: .8%; }
+
+/* ----- NIGHT 1: CAM 05 — Outside Office ----- */
+.scene-outside { --bx1: 16%; --by1: 10%; --bx2: 84%; --by2: 74%; }
+
+.p-office-door {
+  left: 56%; top: 20%;
+  width: 20%; height: 54%;
+  background: linear-gradient(#3b3a34, #2a2925);
+  border: .9cqh solid #1a1a17;
+}
+
+.p-sign {
+  position: absolute;
+  left: 12%; top: 10%;
+  width: 76%;
+  padding: .5cqh 0;
+  text-align: center;
+  font-size: 2.6cqh;
+  color: #1b1a12;
+  background: #7d6c2a;
+}
+
+.p-poster {
+  left: 25%; top: 24%;
+  width: 12%; height: 20%;
+  padding-top: 2cqh;
+  text-align: center;
+  font-size: 2.4cqh;
+  line-height: 1;
+  color: #2a2a26;
+  background: #6f6d62;
+  transform: rotate(2deg);
+}
+
+.p-stain {
+  left: 30%; top: 40%;
+  width: 20%; height: 30%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, .35), transparent 70%);
+}
+
+
+/* =========================================================
+   NIGHT 2 — UNDERGROUND MAINTENANCE LEVEL
+   Betão frio, tubagens, pouca luz.
+   ========================================================= */
+
+.scene-set[data-map="underground"] .r-ceiling { background: linear-gradient(#090a0a, #1b1d1d); }
+.scene-set[data-map="underground"] .r-wall-l  { background: linear-gradient(90deg, #141615, #333735); }
+.scene-set[data-map="underground"] .r-wall-r  { background: linear-gradient(-90deg, #141615, #333735); }
+.scene-set[data-map="underground"] .r-floor {
+  background:
+    radial-gradient(ellipse 20% 10% at 30% 85%, rgba(0, 0, 0, .4), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .3) 0 2px, transparent 2px 12%),
+    linear-gradient(#242623, #101110);
+}
+.scene-set[data-map="underground"] .r-back {
+  background:
+    radial-gradient(ellipse 30% 40% at 70% 80%, rgba(0, 0, 0, .35), transparent 70%),
+    radial-gradient(ellipse 10% 50% at 20% 20%, rgba(0, 0, 0, .25), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 calc(25% - 1px), rgba(0, 0, 0, .3) calc(25% - 1px) 25%),
+    #3a3d3a;
+}
+
+/* ----- CAM 01 — Generator Room ----- */
+.ug-generator { --bx1: 14%; --by1: 24%; --bx2: 86%; --by2: 60%; }
+
+.g-gen {
+  top: 33%;
+  width: 22%; height: 32%;
+  background:
+    repeating-linear-gradient(90deg, #1b1c1a 0 .5cqh, transparent .5cqh 1.6cqh) 12% 40% / 76% 40% no-repeat,
+    linear-gradient(#4b4e48, #2c2e2a);
+  border: .5cqh solid #161715;
+  box-shadow: 0 1.5cqh 2cqh rgba(0, 0, 0, .6);
+}
+.g-gen::after {           /* faixa de aviso */
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 12%;
+  background: repeating-linear-gradient(45deg, #6b561c 0 1.2cqh, #151513 1.2cqh 2.4cqh);
+}
+.g-gen-a { left: 18%; }
+.g-gen-b { left: 60%; }
+
+.g-cable {
+  border: .6cqh solid #0c0c0b;
+  border-top: none;
+  border-radius: 0 0 50% 50%;
+}
+.g-cable-1 { left: 36%; top: 62%; width: 28%; height: 12%; }
+.g-cable-2 { left: 28%; top: 66%; width: 44%; height: 20%; }
+
+.g-warn {
+  left: 49%; top: 29%;
+  width: 2%; height: 3%;
+  border-radius: 50%;
+  background: #ff3b2f;
+  box-shadow: 0 0 2cqh .5cqh rgba(255, 60, 40, .55);
+  animation: blink 1.6s steps(1) infinite;
+}
+
+.g-ceiling-pipe {
+  left: 0; top: 0; width: 100%; height: 100%;
+  background: #4a4232;
+  clip-path: polygon(0 6%, 100% 6%, 86% 18%, 14% 18%, 14% 16%, 84% 16%, 96% 8%, 4% 8%);
+}
+
+/* ----- CAM 02 — Pipe Hall ----- */
+.ug-pipes { --bx1: 43%; --by1: 36%; --bx2: 57%; --by2: 56%; }
+.ug-pipes .r-back { background: #0e0f0e; }
+
+.ph-pipe {
+  left: 0; top: 0; width: 100%; height: 100%;
+  background: #5a5444;
+}
+.ph-l1 { clip-path: polygon(0 12%, 43% 38%, 43% 39.6%, 0 18%); }
+.ph-l2 { clip-path: polygon(0 26%, 43% 41.5%, 43% 42.6%, 0 30%); background: #3d4a44; }
+.ph-l3 { clip-path: polygon(0 72%, 43% 52%, 43% 53.2%, 0 77%); }
+.ph-r1 { clip-path: polygon(100% 12%, 57% 38%, 57% 39.6%, 100% 18%); background: #3d4a44; }
+.ph-r2 { clip-path: polygon(100% 33%, 57% 44%, 57% 45%, 100% 37%); }
+.ph-r3 { clip-path: polygon(100% 64%, 57% 50%, 57% 51%, 100% 68%); background: #4a3d32; }
+
+.ph-grate {
+  left: 0; top: 0; width: 100%; height: 100%;
+  clip-path: polygon(48% 56%, 52% 56%, 60% 100%, 40% 100%);
+  background: repeating-linear-gradient(0deg, #0b0c0b 0 .5cqh, #2a2c29 .5cqh 1.4cqh);
+}
+
+.ph-light-1 { left: 45.5%; top: 6%;  width: 9%; height: 2.2%; }
+.ph-light-2 { left: 48.5%; top: 24%; width: 3%; height: 1%; }
+
+/* ----- CAM 03 — Maintenance ----- */
+.ug-maintenance { --bx1: 26%; --by1: 20%; --bx2: 74%; --by2: 62%; }
+
+.m-pegboard {
+  left: 33%; top: 25%;
+  width: 30%; height: 22%;
+  background:
+    radial-gradient(circle, #151614 0 18%, transparent 22%) 0 0 / 2.4cqh 2.4cqh,
+    #4b4535;
+  border: .4cqh solid #2a2720;
+}
+
+.m-tool {
+  position: absolute;
+  background: #8a8a82;
+}
+.m-tool-1 { left: 14%; top: 20%; width: 7%;  height: 62%; rotate: 8deg; }   /* chave inglesa */
+.m-tool-2 { left: 40%; top: 15%; width: 20%; height: 9%;  background: #6b2a22; } /* martelo */
+.m-tool-2::after {
+  content: ''; position: absolute; left: 42%; top: 100%;
+  width: 16%; height: 500%; background: #5a4a32;
+}
+.m-tool-3 { left: 74%; top: 22%; width: 6%;  height: 58%; rotate: -12deg; }
+
+.m-bench {
+  left: 29%; top: 50%;
+  width: 42%; height: 13%;
+  background:
+    linear-gradient(#51493a 0 26%, #2a2620 26% 100%);
+  border-bottom: .6cqh solid #121210;
+}
+
+.m-toolbox {
+  left: 8%; top: 72%;
+  width: 13%; height: 10%;
+  background: linear-gradient(#5a241e, #3a1612);
+  border: .4cqh solid #1a0b09;
+}
+.m-toolbox::before {
+  content: ''; position: absolute; left: 35%; top: -35%;
+  width: 30%; height: 35%;
+  border: .4cqh solid #1a0b09; border-bottom: none;
+}
+
+.m-barrel {
+  left: 78%; top: 54%;
+  width: 10%; height: 28%;
+  border-radius: 12% / 6%;
+  background:
+    linear-gradient(transparent 0 22%, #20271f 22% 26%, transparent 26% 74%, #20271f 74% 78%, transparent 78%),
+    linear-gradient(90deg, #26302a, #4a5a4a 45%, #26302a);
+}
+
+/* ----- CAM 04 — Junction ----- */
+.ug-junction { --bx1: 20%; --by1: 22%; --bx2: 80%; --by2: 62%; }
+
+.j-open { background: #030303; }
+.j-open-c { left: 43%; top: 31%; width: 14%; height: 31%; }
+.j-open-l {
+  left: 0; top: 0; width: 100%; height: 100%;
+  clip-path: polygon(7% 27%, 15% 31%, 15% 70%, 7% 76%);
+}
+.j-open-r {
+  left: 0; top: 0; width: 100%; height: 100%;
+  clip-path: polygon(93% 27%, 85% 31%, 85% 70%, 93% 76%);
+}
+
+.j-mark {
+  left: 0; top: 0; width: 100%; height: 100%;
+  background: #6f5a1a;
+  opacity: .7;
+}
+.j-mark-1 { clip-path: polygon(49% 62%, 51% 62%, 54% 100%, 46% 100%); }
+.j-mark-2 { clip-path: polygon(12% 82%, 88% 82%, 90% 84.5%, 10% 84.5%); }
+
+.j-sign {
+  left: 27%; top: 30%;
+  font-size: 7cqh;
+  color: #5d5a4a;
+  opacity: .8;
+}
+
+.j-lamp {
+  left: 49.8%; top: 0;
+  width: .3cqh; height: 13%;
+  background: #0a0a0a;
+}
+.j-lamp::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 100%;
+  width: 5cqh; height: 2.4cqh;
+  translate: -50% 0;
+  background: #2a2c29;
+  clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+  box-shadow: 0 2cqh 4cqh rgba(255, 240, 200, .2);
+}
+
+/* ----- CAM 05 — Storage (escura) ----- */
+.ug-storage { --bx1: 30%; --by1: 22%; --bx2: 70%; --by2: 60%; }
+
+.crate {
+  background:
+    linear-gradient(45deg, transparent 46%, #1f1a12 46% 54%, transparent 54%),
+    linear-gradient(#4a4031, #2f281e);
+  border: .5cqh solid #1a160f;
+}
+.crate-1 { left: 5%;  top: 52%; width: 19%; height: 30%; }
+.crate-2 { left: 9%;  top: 32%; width: 14%; height: 20%; }
+.crate-3 { left: 72%; top: 56%; width: 21%; height: 30%; }
+.crate-4 { left: 57%; top: 47%; width: 10%; height: 14%; }
+.crate-5 { left: 33%; top: 50%; width: 9%;  height: 11%; }
+
+.s-bulb {
+  left: 50%; top: 0;
+  width: .3cqh; height: 11%;
+  background: #111;
+}
+.s-bulb::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 100%;
+  width: 1.8cqh; height: 2.2cqh;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: #b8b090;
+  box-shadow: 0 0 4cqh 1cqh rgba(255, 240, 190, .15);
+  animation: bulb-flicker 4s infinite;
+}
+
+@keyframes bulb-flicker {
+  0%, 70%, 74%, 100% { opacity: 1; }
+  71% { opacity: .2; }
+  73% { opacity: .6; }
+}
+
+.s-dark {               /* a sala é mais escura que as outras */
+  inset: 0;
+  background: radial-gradient(ellipse 45% 55% at 50% 25%, rgba(0, 0, 0, .2), rgba(0, 0, 0, .7));
+}
+
+/* ----- CAM 06 — Service Hall ----- */
+.ug-service { --bx1: 18%; --by1: 14%; --bx2: 82%; --by2: 72%; }
+
+.sv-door {
+  left: 40%; top: 26%;
+  width: 20%; height: 46%;
+  background: repeating-linear-gradient(0deg, #2a2c2a 0 .4cqh, #3d403c .4cqh 4cqh);
+  border: .9cqh solid #151615;
+  box-shadow: 0 0 0 .6cqh #5a4a1c;
+}
+
+.sv-hazard {
+  left: 0; top: 0; width: 100%; height: 100%;
+  clip-path: polygon(36% 72%, 64% 72%, 67% 80%, 33% 80%);
+  background: repeating-linear-gradient(45deg, #5a4a1c 0 1.4cqh, #121210 1.4cqh 2.8cqh);
+}
+
+.sv-pipe {
+  left: 0; top: 0; width: 100%; height: 100%;
+  background: #4a4232;
+  clip-path: polygon(0 4%, 18% 15%, 18% 17%, 0 8%);
+}
+
+.sv-vent {
+  left: 66%; top: 22%;
+  width: 9%; height: 8%;
+  background: repeating-linear-gradient(#0b0b0a 0 .5cqh, #2c2e2b .5cqh 1cqh);
+  border: .3cqh solid #3a3d39;
+}
+
+
+/* ----- Efeitos do monitor ----- */
+#cam-noise {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  z-index: 6;
+  opacity: .1;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity .4s;
+}
+
+.cam-rollbar {
+  position: absolute;
+  left: 0; right: 0;
+  height: 18%;
+  z-index: 7;
+  background: linear-gradient(transparent, rgba(255, 255, 255, .05), transparent);
+  animation: rollbar 6s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rollbar {
+  from { top: -20%; }
+  to   { top: 110%; }
+}
+
+/* Faixa de distorção (aparece quando olhas demasiado para o Watcher) */
+.cam-tear {
+  display: none;
+  position: absolute;
+  left: 0; right: 0;
+  height: 4%;
+  z-index: 7;
+  background: rgba(220, 255, 220, .08);
+  box-shadow: 0 0 1cqh rgba(220, 255, 220, .1);
+  pointer-events: none;
+}
+
+/* ----- Feedback do Watcher: quanto mais olhas, pior fica a imagem ----- */
+#cam-screen[data-watch="1"] #cam-noise { opacity: .16; }
+#cam-screen[data-watch="2"] #cam-noise { opacity: .24; }
+#cam-screen[data-watch="3"] #cam-noise { opacity: .34; }
+
+#cam-screen[data-watch="2"] #cam-view { animation: stare-shake .22s steps(2) infinite; }
+#cam-screen[data-watch="3"] #cam-view { animation: stare-shake-hard .12s steps(2) infinite; }
+
+#cam-screen[data-watch="2"] .cam-tear,
+#cam-screen[data-watch="3"] .cam-tear { display: block; animation: tear-band 1.9s steps(6) infinite; }
+#cam-screen[data-watch="3"] .cam-tear { animation-duration: .9s; height: 7%; }
+
+@keyframes stare-shake {
+  50% { transform: translate(.25%, -.15%); }
+}
+
+@keyframes stare-shake-hard {
+  25% { transform: translate(-.5%, .2%) skewX(.6deg); }
+  75% { transform: translate(.4%, -.3%); }
+}
+
+@keyframes tear-band {
+  0%   { top: 70%; opacity: 0; }
+  20%  { top: 64%; opacity: 1; }
+  40%  { top: 22%; opacity: .4; }
+  60%  { top: 48%; opacity: 1; }
+  80%  { top: 85%; opacity: 0; }
+  100% { top: 10%; opacity: 0; }
+}
+
+/* Postura do Watcher vai mudando */
+#cam-screen[data-watch="1"] #cam-watcher .w-head { rotate: 32deg; }
+#cam-screen[data-watch="2"] #cam-watcher .w-head { rotate: -24deg; translate: 0 4%; }
+#cam-screen[data-watch="2"] #cam-watcher .w-arm-r { rotate: -20deg; }
+#cam-screen[data-watch="2"] #cam-watcher .w-eye { box-shadow: 0 0 5px 2px rgba(230, 240, 255, .95); }
+#cam-screen[data-watch="3"] #cam-watcher .w-head { rotate: 46deg; translate: 0 6%; }
+#cam-screen[data-watch="3"] #cam-watcher .w-arm-l { rotate: 16deg; }
+#cam-screen[data-watch="3"] #cam-watcher .w-arm-r { rotate: -30deg; }
+#cam-screen[data-watch="3"] #cam-watcher .w-eye { box-shadow: 0 0 8px 3px rgba(235, 245, 255, 1); scale: 1.5; }
+
+/* Interferência ao trocar de câmara (vem depois para ter prioridade) */
+#cam-screen.interference #cam-noise { animation: noise-burst .35s linear; }
+#cam-screen.interference #cam-view  { animation: tear .35s steps(4); }
+
+@keyframes noise-burst {
+  from { opacity: .95; }
+  to   { opacity: .1; }
+}
+
+@keyframes tear {
+  0%   { transform: translateX(-3%) skewX(4deg); }
+  33%  { transform: translateX(2%); }
+  66%  { transform: translateX(-1%) skewX(-2deg); }
+  100% { transform: none; }
+}
+
+.cam-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  font-size: 3.6cqh;
+  color: #e8eedf;
+  text-shadow: 0 0 .8cqh rgba(200, 255, 200, .4);
+  pointer-events: none;
+}
+
+.cam-rec {
+  position: absolute;
+  top: 2.5cqh; left: 3cqh;
+  color: #ff4a3a;
+  animation: blink 1s steps(1) infinite;
+}
+
+#cam-label {
+  position: absolute;
+  bottom: 2.5cqh; left: 3cqh;
+  letter-spacing: .1em;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+
+/* ----- Mapas ----- */
+
+#cam-side {
+  position: absolute;
+  right: 2.5%; top: 16%;
+  width: 27%; bottom: 3%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6cqh;
+}
+
+#map-title {
+  font-size: 2.8cqh;
+  letter-spacing: .15em;
+  color: var(--crt-dim);
+}
+
+.cam-map {
+  display: none;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border: .3cqh solid var(--crt-dim);
+  background:
+    repeating-linear-gradient(0deg, rgba(159, 191, 150, .06) 0 1px, transparent 1px 2.5cqh),
+    repeating-linear-gradient(90deg, rgba(159, 191, 150, .06) 0 1px, transparent 1px 2.5cqh),
+    #050705;
+}
+
+.cam-map.active { display: block; }
+
+.map-room {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: .3cqh solid var(--crt);
+  background: rgba(159, 191, 150, .06);
+}
+
+.map-office {
+  border-color: var(--led-red);
+  color: var(--led-red);
+  font-size: 2.4cqh;
+}
+
+.map-link {
+  position: absolute;
+  background: var(--crt);
+}
+
+/* Night 1 — Facility */
+.fl-entrance { left: 4%;  top: 4%;  width: 44%; height: 26%; }
+.fl-storage  { left: 52%; top: 4%;  width: 44%; height: 26%; }
+.fl-hall     { left: 4%;  top: 34%; width: 92%; height: 24%; }
+.fl-corridor { left: 28%; top: 62%; width: 27%; height: 34%; }
+.fl-outside  { left: 59%; top: 74%; width: 25%; height: 22%; }
+.fl-office   { left: 88%; top: 74%; width: 8%;  height: 22%; }
+
+.fl-link-1 { left: 25%; top: 30%; width: .3cqh; height: 4%; }
+.fl-link-2 { left: 74%; top: 30%; width: .3cqh; height: 4%; }
+.fl-link-3 { left: 41%; top: 58%; width: .3cqh; height: 4%; }
+.fl-link-4 { left: 55%; top: 85%; width: 4%;   height: .3cqh; }
+.fl-link-5 { left: 84%; top: 85%; width: 4%;   height: .3cqh; }
+
+/* Night 2 — Underground (túneis estreitos) */
+.map-underground-layout .map-room { border-style: solid; background: rgba(159, 191, 150, .04); }
+
+.ug-r1     { left: 5%;  top: 3%;  width: 36%; height: 15%; }
+.ug-r2     { left: 55%; top: 3%;  width: 36%; height: 15%; }
+.ug-r3     { left: 55%; top: 23%; width: 36%; height: 15%; }
+.ug-r5     { left: 5%;  top: 43%; width: 36%; height: 15%; }
+.ug-r4     { left: 55%; top: 43%; width: 36%; height: 15%; }
+.ug-r6     { left: 55%; top: 63%; width: 36%; height: 15%; }
+.ug-office { left: 63%; top: 83%; width: 20%; height: 13%; }
+
+.ug-link-12 { left: 41%; top: 10.5%; width: 14%; height: .3cqh; }
+.ug-link-23 { left: 73%; top: 18%;   width: .3cqh; height: 5%; }
+.ug-link-34 { left: 73%; top: 38%;   width: .3cqh; height: 5%; }
+.ug-link-54 { left: 41%; top: 50.5%; width: 14%; height: .3cqh; }
+.ug-link-46 { left: 73%; top: 58%;   width: .3cqh; height: 5%; }
+.ug-link-6o { left: 73%; top: 78%;   width: .3cqh; height: 5%; }
+
+.cam-btn {
+  position: relative;
+  z-index: 1;
+  padding: .5cqh .7cqh;
+  font-size: 2.5cqh;
+  letter-spacing: .05em;
+  white-space: nowrap;
+  color: var(--crt);
+  background: #0b120b;
+  border: .3cqh solid var(--crt);
+  border-radius: 0;
+}
+
+.cam-btn:hover { background: #1a2a19; }
+.cam-btn:focus { outline: none; }
+
+.cam-btn.selected {
+  color: #050705;
+  background: var(--crt);
+  box-shadow: 0 0 1.5cqh rgba(159, 191, 150, .6);
+}
+
+#btn-close-cams {
+  margin-top: 1cqh;
+  text-align: center;
+  padding-left: 1cqh;
+  letter-spacing: .25em;
+}
+#btn-close-cams::before { display: none; }
+
+
+/* =========================================================
+   HUD
+   ========================================================= */
+
+#hud-clock {
+  position: absolute;
+  top: 3cqh; right: 3cqw;
+  z-index: 50;
+  text-align: right;
+  pointer-events: none;
+}
+
+#clock {
+  font-size: 8cqh;
+  line-height: .9;
+  color: var(--ink);
+  text-shadow: 0 0 1.2cqh rgba(216, 212, 196, .35);
+}
+
+.night-label {
+  font-size: 3.4cqh;
+  letter-spacing: .15em;
+  color: var(--ink-dim);
+}
+
+#hud-power {
+  position: absolute;
+  left: 3cqw; bottom: 3cqh;
+  z-index: 50;
+  font-size: 3.4cqh;
+  letter-spacing: .08em;
+  pointer-events: none;
+  text-shadow: 0 0 .8cqh rgba(0, 0, 0, .9);
+}
+
+#power-value { color: #fff; }
+
+.power-bar {
+  width: 26cqh;
+  height: 1.8cqh;
+  margin: .8cqh 0 1cqh;
+  padding: .25cqh;
+  border: .25cqh solid var(--ink-dim);
+}
+
+#power-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--ink);
+}
+
+#power-fill.low { background: var(--led-red); }
+
+.usage {
+  display: flex;
+  align-items: center;
+  gap: .7cqh;
+}
+
+.usage-bar {
+  width: 1.7cqh;
+  height: 2.8cqh;
+  background: #1a1a17;
+  border: .2cqh solid #000;
+}
+
+.usage-bar:first-of-type { margin-left: .6cqh; }
+.usage-bar.on:nth-of-type(1),
+.usage-bar.on:nth-of-type(2) { background: #6dbb4f; }
+.usage-bar.on:nth-of-type(3) { background: #d9b23a; }
+.usage-bar.on:nth-of-type(4) { background: #d8402f; }
+
+
+/* =========================================================
+   ECRÃS (menu, intro, derrota, vitória)
+   ========================================================= */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3cqh;
+  text-align: center;
+  background: radial-gradient(ellipse at center, #141412 0%, #000 70%);
+}
+
+.title {
+  font-size: 13cqh;
+  letter-spacing: .12em;
+  line-height: 1;
+  color: var(--ink);
+  text-shadow:
+    0 0 2cqh rgba(216, 212, 196, .3),
+    .4cqh 0 rgba(255, 0, 0, .35),
+    -.4cqh 0 rgba(0, 255, 255, .2);
+  animation: title-flicker 5s infinite;
+}
+
+@keyframes title-flicker {
+  0%, 100% { opacity: 1; }
+  91% { opacity: 1; }
+  92% { opacity: .4; }
+  93% { opacity: 1; }
+  95% { opacity: .7; }
+  96% { opacity: 1; }
+}
+
+.hint {
+  font-size: 3.4cqh;
+  color: #6c6a5e;
+}
+
+.overlay .ctrl-btn {
+  width: auto;
+  padding: 2cqh 6cqh;
+  font-size: 4.6cqh;
+  letter-spacing: .25em;
+  text-align: center;
+}
+
+.overlay .ctrl-btn::before { display: none; }
+
+.btn-row {
+  display: flex;
+  gap: 3cqh;
+  margin-top: 2cqh;
+}
+
+/* Menu: escolha da noite */
+.night-select {
+  display: flex;
+  gap: 3cqh;
+  margin: 3cqh 0 1cqh;
+}
+
+.overlay .night-btn {
+  position: relative;
+  min-width: 24cqh;
+  padding: 3cqh 4cqh;
+  font-size: 5cqh;
+}
+
+.lock-label {
+  display: none;
+  position: absolute;
+  left: 0; right: 0; bottom: .6cqh;
+  font-size: 2.2cqh;
+  letter-spacing: .3em;
+  color: var(--led-red);
+}
+
+.night-btn:disabled .lock-label { display: block; }
+
+/* Botão OPTIONS e ecrã de volume */
+.overlay .options-btn {
+  padding: 1.4cqh 4cqh;
+  font-size: 3.2cqh;
+  letter-spacing: .3em;
+  color: var(--ink-dim);
+}
+
+.title-small { font-size: 9cqh; }
+
+.volume-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5cqh;
+  margin: 2cqh 0 3cqh;
+}
+
+.volume-row {
+  display: grid;
+  grid-template-columns: 42cqh 48cqh 10cqh;
+  white-space: nowrap;
+  align-items: center;
+  gap: 3cqh;
+  font-size: 3.6cqh;
+  letter-spacing: .12em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.volume-value { text-align: right; color: #fff; }
+
+/* Slider industrial: calha escura e cursor quadrado */
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4cqh;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.volume-slider:focus { outline: none; }
+
+.volume-slider::-webkit-slider-runnable-track {
+  height: 1.4cqh;
+  background: #0d0d0c;
+  border: .3cqh solid #3a3934;
+  box-shadow: inset 0 0 1cqh #000;
+}
+.volume-slider::-moz-range-track {
+  height: 1.4cqh;
+  background: #0d0d0c;
+  border: .3cqh solid #3a3934;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 2.6cqh; height: 4cqh;
+  margin-top: -1.6cqh;
+  background: linear-gradient(#5a5952, #2c2b27);
+  border: .3cqh solid #0a0a09;
+  box-shadow: 0 .4cqh 0 #0a0a09;
+}
+.volume-slider::-moz-range-thumb {
+  width: 2.6cqh; height: 4cqh;
+  border-radius: 0;
+  background: linear-gradient(#5a5952, #2c2b27);
+  border: .3cqh solid #0a0a09;
+}
+.volume-slider:hover::-webkit-slider-thumb { filter: brightness(1.3); }
+
+/* Intro da noite */
+#night-intro {
+  background: #000;
+  gap: 1cqh;
+}
+
+.intro-time {
+  font-size: 4.6cqh;
+  letter-spacing: .2em;
+  color: var(--ink-dim);
+  animation: intro-fade 2.5s ease-in-out forwards;
+}
+
+.intro-night {
+  font-size: 16cqh;
+  letter-spacing: .15em;
+  color: var(--ink);
+  text-shadow: .4cqh 0 rgba(255, 0, 0, .35), -.4cqh 0 rgba(0, 255, 255, .2);
+  animation: intro-fade 2.5s ease-in-out forwards;
+}
+
+@keyframes intro-fade {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+#lose-screen {
+  background: radial-gradient(ellipse at center, #1e0504 0%, #000 70%);
+}
+
+.title-caught {
+  font-size: 11cqh;
+  color: #c9332a;
+}
+
+#win-screen {
+  background: radial-gradient(ellipse 80% 50% at 50% 100%, #2a2112 0%, #000 70%);
+}
+
+.win-time {
+  font-size: 22cqh;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 3cqh rgba(255, 255, 255, .4);
+  animation: win-in 1.5s ease-out;
+}
+
+@keyframes win-in {
+  from { opacity: 0; letter-spacing: .4em; }
+  to   { opacity: 1; letter-spacing: 0; }
+}
+
+#win-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5cqh;
+  animation: win-in 1s ease-out;
+}
+
+#win-message .title { font-size: 9cqh; }
+
+.unlock-note {
+  font-size: 4cqh;
+  letter-spacing: .3em;
+  color: var(--led-amber);
+  animation: blink 1.2s steps(1) 3;
+}
+
+#win-message .ctrl-btn { padding: 1.8cqh 4cqh; font-size: 4cqh; }
+
+
+/* =========================================================
+   JUMPSCARES
+   ========================================================= */
+
+#jumpscare {
+  z-index: 110;
+  background: #000;
+  overflow: hidden;
+}
+
+#jumpscare .js-face { display: none; }
+#jumpscare[data-monster="black"]   .js-black   { display: block; }
+#jumpscare[data-monster="watcher"] .js-watcher { display: block; }
+
+#js-noise {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: .15;
+}
+
+.js-tear {
+  display: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0 6cqh, rgba(230, 240, 255, .18) 6cqh 7cqh, transparent 7cqh 13cqh);
+  animation: js-tear-move .15s steps(3) infinite;
+}
+
+@keyframes js-tear-move {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 21cqh; }
+}
+
+/* ----- Jumpscare do BLACK ----- */
+#jumpscare[data-monster="black"] { animation: js-bg .12s steps(1) infinite; }
+
+@keyframes js-bg {
+  50% { background: #330000; }
+}
+
+.js-face {
+  position: relative;
+  height: 92cqh;
+}
+
+.js-black {
+  aspect-ratio: .8;
+  border-radius: 46% 46% 42% 42% / 40% 40% 60% 60%;
+  background: radial-gradient(ellipse at 50% 35%, #1f1f1c, #080808 60%, #000 78%);
+  box-shadow: 0 0 6cqh 3cqh #000;
+  animation: js-zoom .25s ease-out forwards, js-shake .07s infinite;
+}
+
+@keyframes js-zoom {
+  from { scale: .3; }
+  to   { scale: 1.25; }
+}
+
+@keyframes js-shake {
+  0%   { translate: 0 0; }
+  25%  { translate: -1.5cqh 1cqh; }
+  50%  { translate: 1.5cqh -1cqh; }
+  75%  { translate: -1cqh -1cqh; }
+}
+
+.js-eye {
+  position: absolute;
+  top: 30%;
+  width: 22%; height: 16%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #000 0 14%, #fffbe8 16%, #d9d2b8 60%, #8a1a10 100%);
+  box-shadow: 0 0 4cqh 1cqh rgba(255, 60, 40, .5);
+}
+.js-eye-l { left: 18%;  rotate: 10deg; }
+.js-eye-r { right: 18%; rotate: -10deg; }
+
+.js-mouth {
+  position: absolute;
+  left: 14%; top: 60%;
+  width: 72%; height: 22%;
+  overflow: hidden;
+  border-radius: 10% 10% 45% 45%;
+  background: #140000;
+}
+
+.js-mouth::before,
+.js-mouth::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 45%;
+  background: #d8d0b8;
+}
+
+.js-mouth::before {
+  top: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 10%, 95% 100%, 90% 10%, 85% 100%, 80% 10%, 75% 100%, 70% 10%, 65% 100%, 60% 10%, 55% 100%, 50% 10%, 45% 100%, 40% 10%, 35% 100%, 30% 10%, 25% 100%, 20% 10%, 15% 100%, 10% 10%, 5% 100%, 0 10%);
+}
+
+.js-mouth::after {
+  bottom: 0;
+  clip-path: polygon(0 100%, 100% 100%, 100% 90%, 95% 0, 90% 90%, 85% 0, 80% 90%, 75% 0, 70% 90%, 65% 0, 60% 90%, 55% 0, 50% 90%, 45% 0, 40% 90%, 35% 0, 30% 90%, 25% 0, 20% 90%, 15% 0, 10% 90%, 5% 0, 0 90%);
+}
+
+/* ----- Jumpscare do WATCHER: rosto pálido que se aproxima com distorção ----- */
+#jumpscare[data-monster="watcher"] { animation: jw-bg .09s steps(1) infinite; }
+#jumpscare[data-monster="watcher"] #js-noise { opacity: .38; }
+#jumpscare[data-monster="watcher"] .js-tear { display: block; }
+
+@keyframes jw-bg {
+  50% { background: #1a1d22; }
+}
+
+.js-watcher {
+  aspect-ratio: .62;
+  border-radius: 48% 48% 44% 44% / 36% 36% 64% 64%;
+  background:
+    radial-gradient(ellipse 34% 10% at 50% 42%, rgba(20, 20, 18, .55), transparent 75%),
+    radial-gradient(ellipse 22% 10% at 50% 76%, rgba(0, 0, 0, .25), transparent 70%),
+    radial-gradient(ellipse at 45% 32%, #b9b7ae, #85837b 45%, #4a4944 75%, #1e1d1b 95%);
+  box-shadow: 0 0 8cqh 4cqh rgba(0, 0, 0, .9);
+  rotate: 10deg;
+  animation: jw-zoom .4s cubic-bezier(.2, 0, .9, .6) forwards, jw-distort .1s steps(2) infinite;
+}
+
+@keyframes jw-zoom {
+  0%   { scale: .12; }
+  70%  { scale: 1.05; }
+  100% { scale: 1.35; }
+}
+
+@keyframes jw-distort {
+  0%   { transform: skewX(0) translateX(0); filter: contrast(1.15); }
+  50%  { transform: skewX(-7deg) translateX(-2%); filter: contrast(1.4); }
+  100% { transform: skewX(5deg) translateX(1.5%); filter: contrast(1.1) brightness(.9); }
+}
+
+.jw-eye {               /* órbita escura e funda com um olho claro no meio */
+  position: absolute;
+  top: 36%;
+  width: 17%; height: 9%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #fbfcff 0 16%, #cfd8ff 22%, #0d0d0c 34%, #1d1c1a 58%, rgba(29, 28, 26, 0) 75%);
+}
+.jw-eye::after {        /* brilho do olho */
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 22%; height: 30%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  box-shadow: 0 0 3cqh 1cqh rgba(220, 232, 255, .8);
+}
+.jw-eye-l { left: 24%; }
+.jw-eye-r { right: 24%; top: 38.5%; }
+
+
+/* =========================================================
+   NIGHT 3 — ABANDONED RESEARCH WING
+   ========================================================= */
+
+/* A sala do segurança com luz de emergência */
+.map-researchWing .office-wall {
+  background:
+    radial-gradient(ellipse 40% 30% at 50% 0%, rgba(255, 40, 20, .13), transparent 70%),
+    radial-gradient(ellipse 20% 30% at 12% 60%, rgba(0, 0, 0, .55), transparent 70%),
+    radial-gradient(ellipse 14% 22% at 86% 34%, rgba(60, 20, 10, .35), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 calc(8% - 1px), rgba(0, 0, 0, .28) calc(8% - 1px) 8%),
+    repeating-linear-gradient(90deg, transparent 0 calc(5% - 1px), rgba(0, 0, 0, .28) calc(5% - 1px) 5%),
+    linear-gradient(#2a2725, #1c1a18 70%, #121110);
+}
+.map-researchWing #corridor .r-wall-l { background: repeating-linear-gradient(0deg, transparent 0 7%, rgba(0, 0, 0, .3) 7% 7.6%), linear-gradient(90deg, #1d1b1a, #3d3936); }
+.map-researchWing #corridor .r-wall-r { background: repeating-linear-gradient(0deg, transparent 0 7%, rgba(0, 0, 0, .3) 7% 7.6%), linear-gradient(-90deg, #1d1b1a, #3d3936); }
+
+/* Câmaras da Night 3: cor de luz de emergência; a CAM 07 num verde doentio */
+#cam-screen[data-view^="researchWing"] #cam-view {
+  filter: grayscale(.55) sepia(.55) hue-rotate(-28deg) saturate(1.5) contrast(1.15) brightness(.78);
+}
+#cam-screen[data-view="researchWing-cam7"] #cam-view {
+  filter: grayscale(.75) sepia(.45) hue-rotate(68deg) saturate(1.2) contrast(1.25) brightness(.62);
+}
+#cam-screen[data-view="researchWing-cam7"] #cam-noise { opacity: .05; }   /* imagem quase parada */
+
+/* Escuridão por cima dos monstros (arquivo e specimen room) */
+.cam-room-dark {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+#cam-screen[data-view="researchWing-cam4"] .cam-room-dark {
+  display: block;
+  background: radial-gradient(ellipse 45% 55% at 50% 62%, rgba(0, 0, 0, .2), rgba(0, 0, 0, .86));
+}
+#cam-screen[data-view="researchWing-cam7"] .cam-room-dark {
+  display: block;
+  background: radial-gradient(ellipse 55% 45% at 46% 66%, rgba(0, 0, 0, 0), rgba(0, 0, 0, .78));
+  animation: specimen-flicker 7s infinite;
+}
+
+@keyframes specimen-flicker {
+  0%, 40%, 43%, 71%, 72.6%, 100% { opacity: 1; }
+  41%   { opacity: .3; }
+  42%   { opacity: .9; }
+  72%   { opacity: .55; }
+}
+
+.scene-set[data-map="researchWing"] .r-back {
+  background:
+    radial-gradient(ellipse 25% 35% at 70% 75%, rgba(0, 0, 0, .35), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 calc(12% - 1px), rgba(0, 0, 0, .3) calc(12% - 1px) 12%),
+    repeating-linear-gradient(90deg, transparent 0 calc(8% - 1px), rgba(0, 0, 0, .3) calc(8% - 1px) 8%),
+    #4b4d48;
+}
+.scene-set[data-map="researchWing"] .r-wall-l { background: repeating-linear-gradient(0deg, transparent 0 9%, rgba(0, 0, 0, .25) 9% 9.6%), linear-gradient(90deg, #1c1d1b, #3e403b); }
+.scene-set[data-map="researchWing"] .r-wall-r { background: repeating-linear-gradient(0deg, transparent 0 9%, rgba(0, 0, 0, .25) 9% 9.6%), linear-gradient(-90deg, #1c1d1b, #3e403b); }
+.scene-set[data-map="researchWing"] .r-floor {
+  background:
+    radial-gradient(ellipse 18% 8% at 35% 82%, rgba(0, 0, 0, .45), transparent 70%),
+    radial-gradient(ellipse 12% 6% at 70% 90%, rgba(40, 0, 0, .35), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .25) 0 2px, transparent 2px 10%),
+    linear-gradient(#2c2c28, #141412);
+}
+
+.rw-red-light {
+  left: 47%; top: 3%;
+  width: 6%; height: 2.6%;
+  background: #ff3a24;
+  box-shadow: 0 0 5cqh 2cqh rgba(255, 50, 30, .3);
+  animation: blink 2.4s steps(1) infinite;
+}
+
+/* CAM 01 — Reception */
+.rw-reception { --bx1: 22%; --by1: 22%; --bx2: 78%; --by2: 64%; }
+.rw-sign {
+  left: 34%; top: 27%;
+  width: 32%;
+  padding-bottom: .6cqh;
+  text-align: center;
+  font-size: 2.6cqh;
+  letter-spacing: .25em;
+  color: #8f918a;
+  border-bottom: .3cqh solid #6b6e66;
+}
+.rw-desk {
+  left: 30%; top: 52%;
+  width: 40%; height: 15%;
+  background: linear-gradient(#5d5e57 0 14%, #2e2f2b 14%);
+  border-bottom: .6cqh solid #121210;
+}
+.rw-papers {
+  left: 18%; top: 76%;
+  width: 3%; height: 2%;
+  background: #b9b9b0;
+  transform: rotate(12deg);
+  box-shadow: 9cqh 2cqh 0 #a6a69d, 22cqh -1cqh 0 #b0b0a8, 35cqh 3cqh 0 #9c9c94, 48cqh 1cqh 0 #b5b5ac, 57cqh 4cqh 0 #a2a29a;
+}
+.rw-chair {
+  left: 72%; top: 66%;
+  width: 7%; height: 9%;
+  background: linear-gradient(#3a3b37 0 30%, transparent 30% 70%, #3a3b37 70%);
+  border-left: .7cqh solid #2a2b28;
+  transform: rotate(-70deg);
+}
+
+/* CAM 02 — Observation Hall (vidros partidos) */
+.rw-observation { --bx1: 38%; --by1: 30%; --bx2: 62%; --by2: 58%; }
+.rw-window {
+  overflow: hidden;
+  background: linear-gradient(115deg, rgba(170, 200, 210, .14), rgba(30, 40, 44, .55) 60%), #0b1012;
+  border: .6cqh solid #5a5d58;
+}
+.rw-window-a { left: 0; top: 0; width: 100%; height: 100%; border: none; clip-path: polygon(6% 22%, 30% 33%, 30% 52%, 6% 64%); }
+.rw-window-b { left: 0; top: 0; width: 100%; height: 100%; border: none; clip-path: polygon(94% 22%, 70% 33%, 70% 52%, 94% 64%); }
+.rw-window-c { left: 60%; top: 30%; width: 15%; height: 16%; }
+.crack {
+  position: absolute;
+  height: .25cqh;
+  background: rgba(225, 235, 235, .75);
+  transform-origin: left center;
+}
+.crack.c1 { left: 18%; top: 42%; width: 22%; rotate: 25deg; }
+.crack.c2 { left: 18%; top: 42%; width: 18%; rotate: -40deg; }
+.crack.c3 { left: 18%; top: 42%; width: 16%; rotate: 160deg; }
+.crack.c4 { left: 80%; top: 46%; width: 14%; rotate: -150deg; }
+.rw-window-c .crack { width: 60%; left: 40%; top: 50%; }
+.rw-shards {
+  left: 8%; top: 70%;
+  width: 30%; height: 12%;
+  background:
+    radial-gradient(circle at 10% 40%, rgba(210, 225, 225, .55) 0 .35cqh, transparent .45cqh),
+    radial-gradient(circle at 30% 70%, rgba(210, 225, 225, .45) 0 .3cqh, transparent .4cqh),
+    radial-gradient(circle at 46% 30%, rgba(210, 225, 225, .5) 0 .4cqh, transparent .5cqh),
+    radial-gradient(circle at 62% 60%, rgba(210, 225, 225, .4) 0 .3cqh, transparent .4cqh),
+    radial-gradient(circle at 80% 45%, rgba(210, 225, 225, .5) 0 .35cqh, transparent .45cqh);
+}
+
+/* CAM 03 — Laboratory */
+.rw-lab { --bx1: 20%; --by1: 20%; --bx2: 80%; --by2: 62%; }
+.rw-screen {
+  left: 38%; top: 27%;
+  width: 24%; height: 15%;
+  background: repeating-linear-gradient(0deg, rgba(120, 255, 160, .06) 0 1px, transparent 1px 3px), #0a1210;
+  border: .6cqh solid #3a3d38;
+  box-shadow: inset 0 0 2cqh rgba(120, 255, 160, .15);
+}
+.rw-bench {
+  height: 6%;
+  background: linear-gradient(#64665f 0 30%, #2f302c 30%);
+  box-shadow: 0 2.4cqh 0 -1.6cqh #141412;
+}
+.rw-bench-a { left: 8%;  top: 64%; width: 30%; transform: skewX(-12deg); }
+.rw-bench-b { left: 60%; top: 66%; width: 32%; transform: skewX(12deg); }
+.rw-cable {
+  border: .4cqh solid #0b0b0a;
+  border-top: none;
+  border-radius: 0 0 50% 50%;
+}
+.rw-cable-1 { left: 18%; top: 5%;  width: 20%; height: 12%; }
+.rw-cable-2 { left: 44%; top: 2%;  width: 26%; height: 16%; }
+.rw-cable-3 { left: 72%; top: 0;   width: 0;   height: 34%; border-width: 0 0 0 .4cqh; border-radius: 0; }
+.rw-cable-4 { left: 30%; top: 0;   width: 18%; height: 18%; }
+
+/* CAM 04 — Archive (quase escuro) */
+.rw-archive { --bx1: 30%; --by1: 24%; --bx2: 70%; --by2: 60%; }
+.rw-cabinet {
+  background:
+    repeating-linear-gradient(#3e403b 0 4.4cqh, #171816 4.4cqh 5cqh),
+    #3e403b;
+  border: .5cqh solid #1c1d1b;
+}
+.rw-cab-1 { left: 6%;  top: 20%; width: 14%; height: 66%; }
+.rw-cab-2 { left: 22%; top: 28%; width: 8%;  height: 40%; }
+.rw-cab-3 { left: 80%; top: 20%; width: 14%; height: 66%; }
+.rw-cab-4 { left: 70%; top: 28%; width: 8%;  height: 40%; }
+.rw-papers-b { left: 36%; top: 72%; }
+.rw-dark { inset: 0; background: rgba(0, 0, 0, .15); }
+
+/* CAM 05 — Containment Hall */
+.rw-containment { --bx1: 18%; --by1: 16%; --bx2: 82%; --by2: 66%; }
+.rw-vault {
+  left: 38%; top: 22%;
+  width: 24%; aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #3a3c38 0 30%, #2a2b28 31% 60%, #4a4c47 61% 64%, #222 65%);
+  border: 1cqh solid #1a1b19;
+}
+.rw-vault-ring {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  border: .8cqh dashed #6b5a1a;
+}
+/* Marcas de garras nas paredes */
+.rw-marks {
+  background: repeating-linear-gradient(100deg, transparent 0 .9cqh, rgba(0, 0, 0, .65) .9cqh 1.25cqh);
+  clip-path: polygon(10% 0, 90% 8%, 100% 100%, 0 92%);
+}
+.rw-marks-a { left: 66%; top: 28%; width: 7%;  height: 22%; }
+.rw-marks-b { left: 20%; top: 36%; width: 6%;  height: 26%; transform: skewY(18deg); }
+.rw-marks-c { left: 28%; top: 30%; width: 8%;  height: 24%; }
+.rw-hazard-floor {
+  left: 0; top: 0; width: 100%; height: 100%;
+  clip-path: polygon(30% 66%, 70% 66%, 74% 74%, 26% 74%);
+  background: repeating-linear-gradient(45deg, #5a4a1c 0 1.4cqh, #121210 1.4cqh 2.8cqh);
+  opacity: .8;
+}
+
+/* CAM 06 — Service Corridor */
+.rw-service { --bx1: 42%; --by1: 30%; --bx2: 58%; --by2: 58%; }
+.rw-pipe {
+  left: 0; top: 0; width: 100%; height: 100%;
+  background: #4a4232;
+  clip-path: polygon(0 14%, 42% 34%, 42% 35.4%, 0 18.5%);
+}
+.rw-office-door {
+  left: 45%; top: 36%;
+  width: 10%; height: 22%;
+  background: linear-gradient(#3b3a34, #2a2925);
+  border: .5cqh solid #1a1a17;
+}
+.rw-office-door .p-sign { font-size: 1.4cqh; padding: .2cqh 0; }
+
+/* CAM 07 — Specimen Room (a sala do Morrow) */
+.rw-specimen { --bx1: 20%; --by1: 22%; --bx2: 80%; --by2: 66%; }
+.rw-specimen .r-back { background: radial-gradient(ellipse 40% 60% at 50% 100%, rgba(0, 0, 0, .4), transparent 70%), #3c3e39; }
+.rw-bars {
+  left: 22%; top: 24%;
+  width: 56%; height: 42%;
+  background: repeating-linear-gradient(90deg, #23241f 0 .7cqh, transparent .7cqh 5cqh);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 64% 100%, 60% 30%, 46% 46%, 40% 100%, 0 100%);   /* grades arrombadas */
+  opacity: .9;
+}
+.rw-chain {
+  width: .6cqh;
+  background: repeating-linear-gradient(#56564f 0 .7cqh, transparent .7cqh 1.1cqh);
+  transform-origin: top center;
+}
+.rw-chain-1 { left: 30%; top: 0; height: 40%; rotate: 4deg; }
+.rw-chain-2 { left: 70%; top: 0; height: 30%; rotate: -6deg; }
+.rw-green-light {
+  left: 49%; top: 1%;
+  width: 3%; height: 2%;
+  background: #b8e6a8;
+  box-shadow: 0 0 5cqh 2cqh rgba(170, 255, 150, .18);
+  animation: bulb-flicker 5s infinite;
+}
+
+/* Onde os monstros aparecem nas câmaras da Night 3 */
+.cam-monster[data-spot="researchWing-cam1"] { --x: 62%; --y: 28%; --h: 36%; }
+.cam-monster[data-spot="researchWing-cam2"] { --x: 46%; --y: 26%; --h: 40%; }
+.cam-monster[data-spot="researchWing-cam3"] { --x: 72%; --y: 22%; --h: 42%; }
+.cam-monster[data-spot="researchWing-cam4"] { --x: 50%; --y: 30%; --h: 36%; }
+.cam-monster[data-spot="researchWing-cam5"] { --x: 30%; --y: 20%; --h: 48%; }
+.cam-monster[data-spot="researchWing-cam6"] { --x: 32%; --y: 3%;  --h: 78%; }
+
+/* Mapa da Night 3: a CAM 07 é uma sala à parte (tracejado âmbar) */
+.rw-r1     { left: 3%;  top: 4%;  width: 28%; height: 16%; }
+.rw-r2     { left: 36%; top: 4%;  width: 28%; height: 16%; }
+.rw-r3     { left: 69%; top: 4%;  width: 28%; height: 16%; }
+.rw-r4     { left: 36%; top: 30%; width: 28%; height: 16%; }
+.rw-r7     { left: 3%;  top: 54%; width: 28%; height: 20%; }
+.rw-r5     { left: 36%; top: 56%; width: 28%; height: 16%; }
+.rw-r6     { left: 69%; top: 56%; width: 28%; height: 16%; }
+.rw-office { left: 73%; top: 82%; width: 20%; height: 13%; }
+
+.rw-link-12 { left: 31%; top: 12%; width: 5%;   height: .3cqh; }
+.rw-link-23 { left: 64%; top: 12%; width: 5%;   height: .3cqh; }
+.rw-link-24 { left: 50%; top: 20%; width: .3cqh; height: 10%; }
+.rw-link-45 { left: 50%; top: 46%; width: .3cqh; height: 10%; }
+.rw-link-75 { left: 31%; top: 64%; width: 5%;   height: .3cqh; }
+.rw-link-56 { left: 64%; top: 64%; width: 5%;   height: .3cqh; }
+.rw-link-6o { left: 83%; top: 72%; width: .3cqh; height: 10%; }
+
+.map-special {
+  flex-direction: column;
+  gap: .3cqh;
+  border-style: dashed;
+  border-color: var(--led-amber);
+  background: repeating-linear-gradient(45deg, rgba(255, 180, 58, .08) 0 1cqh, transparent 1cqh 2cqh);
+}
+.map-special-tag {
+  font-size: 1.8cqh;
+  letter-spacing: .2em;
+  color: var(--led-amber);
+}
+.map-special .cam-btn { color: var(--led-amber); border-color: var(--led-amber); }
+.map-special .cam-btn.selected { color: #050705; background: var(--led-amber); box-shadow: 0 0 1.5cqh rgba(255, 180, 58, .6); }
+
+
+/* =========================================================
+   MORROW (desenhado em SVG, no <template> do HTML)
+   data-pose: lying / headup / stand / rear / run
+   data-mood: sleeping / restless / awake / standing / hunting / attacking
+   ========================================================= */
+
+.morrow-figure { aspect-ratio: 1; }
+
+.morrow-figure .m-pose {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  overflow: visible;
+}
+.morrow-figure[data-pose="lying"]  .m-lying,
+.morrow-figure[data-pose="headup"] .m-headup,
+.morrow-figure[data-pose="stand"]  .m-stand,
+.morrow-figure[data-pose="rear"]   .m-rear,
+.morrow-figure[data-pose="run"]    .m-run { display: block; }
+
+.m-pose path,
+.m-pose ellipse {
+  fill: #050505;
+  stroke: #1d1d1a;
+  stroke-width: .8;
+}
+.m-pose g { transform-box: fill-box; }
+
+/* Olhos: fechados a dormir, aparecem às vezes quando inquieto, abertos quando acordado */
+.m-pose .m-eye {
+  fill: #dcf2cc;
+  stroke: none;
+  opacity: 0;
+  filter: drop-shadow(0 0 1.5px rgba(220, 255, 200, .9));
+}
+
+#cam-morrow { animation: none; }
+#cam-morrow[data-spot="researchWing-cam7"] { --x: 52%; --y: 30%; --h: 46%; }
+/* Deitado: maior, para se perceber a forma ao fundo da sala */
+#cam-morrow[data-spot="researchWing-cam7"][data-pose="lying"],
+#cam-morrow[data-spot="researchWing-cam7"][data-pose="headup"] { --x: 50%; --y: 26%; --h: 64%; }
+#cam-morrow[data-spot="researchWing-cam5"] { --x: 50%; --y: 12%; --h: 58%; }
+#cam-morrow[data-spot="researchWing-cam6"] { --x: 46%; --y: 0%;  --h: 86%; }
+
+/* A dormir: respiração lenta, quase imóvel */
+.morrow-figure[data-mood="sleeping"] .m-body {
+  transform-origin: 50% 100%;
+  animation: m-breathe 4.2s ease-in-out infinite;
+}
+
+/* Inquieto: respira mais depressa, mexe a cabeça e uma pata, abre os olhos às vezes */
+.morrow-figure[data-mood="restless"] .m-body {
+  transform-origin: 50% 100%;
+  animation: m-breathe 2s ease-in-out infinite;
+}
+.morrow-figure[data-mood="restless"] .m-lying .m-head {
+  transform-origin: 90% 70%;
+  animation: m-head-stir 5.5s infinite;
+}
+.morrow-figure[data-mood="restless"] .m-paw {
+  transform-origin: 100% 50%;
+  animation: m-paw-stir 7s infinite;
+}
+.morrow-figure[data-mood="restless"] .m-eye { animation: m-eye-open 6s infinite; }
+
+/* Acordado: cabeça erguida a olhar para a câmara */
+.morrow-figure[data-mood="awake"] .m-eye { opacity: .85; }
+.morrow-figure[data-mood="awake"] .m-body {
+  transform-origin: 50% 100%;
+  animation: m-breathe 1.5s ease-in-out infinite;
+}
+.morrow-figure[data-mood="awake"] .m-headup .m-head {
+  transform-origin: 50% 100%;
+  animation: m-head-watch 6s ease-in-out infinite;
+}
+
+/* De pé / a caçar / a atacar: olhos acesos, treme */
+.morrow-figure[data-mood="standing"] .m-eye,
+.morrow-figure[data-mood="hunting"] .m-eye,
+.morrow-figure[data-mood="attacking"] .m-eye {
+  opacity: 1;
+  filter: drop-shadow(0 0 3px rgba(230, 255, 210, 1));
+}
+.morrow-figure[data-mood="standing"] .m-pose { animation: m-shudder .5s steps(2) infinite; }
+.morrow-figure[data-mood="hunting"] .m-run { animation: m-gallop .28s steps(2) infinite; }
+
+@keyframes m-breathe   { 50% { transform: scaleY(1.035); } }
+@keyframes m-head-stir {
+  0%, 70%, 100% { transform: none; }
+  74% { transform: rotate(-7deg) translateY(-3%); }
+  82% { transform: rotate(-5deg) translateY(-2%); }
+  88% { transform: none; }
+}
+@keyframes m-paw-stir {
+  0%, 55%, 100% { transform: none; }
+  60% { transform: translateX(-7%) rotate(-5deg); }
+  66% { transform: none; }
+}
+@keyframes m-eye-open {
+  0%, 60%, 100% { opacity: 0; }
+  63%, 78% { opacity: .7; }
+  80% { opacity: 0; }
+}
+@keyframes m-head-watch {
+  0%, 100% { transform: rotate(0); }
+  40% { transform: rotate(4deg); }
+  70% { transform: rotate(-3deg); }
+}
+@keyframes m-shudder { 50% { transform: translateX(.8%); } }
+@keyframes m-gallop  { 50% { transform: translateY(-3%) scaleX(1.04); } }
+
+/* Morrow no corredor (só com a luz ligada) */
+#corridor-morrow.near { bottom: 0;   height: 100%; }
+#corridor-morrow.far  { bottom: 37%; height: 30%; }
+
+/* Morrow na janela da porta */
+.slot-morrow {
+  bottom: -60%;
+  width: 24%; height: 170%;
+  border-radius: 40% 40% 30% 30%;
+  background: #030303;
+}
+.slot-morrow::before {
+  content: '';
+  position: absolute;
+  top: 34%; left: 24%;
+  width: 14%; height: 9%;
+  border-radius: 50%;
+  background: #dcf2cc;
+  box-shadow: 1.9cqh 0 0 #dcf2cc, 0 0 4px 1px rgba(220, 255, 200, .9);
+}
+.slot-morrow::after {
+  content: '';
+  position: absolute;
+  top: -14%; left: 6%;
+  width: 88%; height: 22%;
+  background: #030303;
+  clip-path: polygon(0 100%, 10% 0, 22% 100%, 78% 100%, 90% 0, 100% 100%);
+}
+
+/* Olhos no escuro (falta de energia) */
+#powerout-eyes[data-monster="morrow"] span {
+  top: 20%;
+  width: 1.5cqh; height: 1.1cqh;
+  background: #dcf2cc;
+  box-shadow: 0 0 1.6cqh .5cqh rgba(210, 255, 190, .75);
+}
+#powerout-eyes[data-monster="morrow"] span:first-child { left: 47%; }
+#powerout-eyes[data-monster="morrow"] span:last-child  { left: 53%; }
+
+/* A porta fechada não o pára: pancadas, metal a dobrar, e cede */
+#door.breaching { animation: door-breach 1.6s linear forwards; }
+#door.breaching::after {
+  content: '';
+  position: absolute;
+  left: 22%; top: 28%;
+  width: 56%; height: 36%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, .75), transparent 70%);
+  animation: door-dent 1.6s steps(3) forwards;
+}
+
+@keyframes door-breach {
+  0%   { transform: translate(0, 0); }
+  4%   { transform: translate(-1.6cqh, .8cqh) skewX(-2deg); }
+  9%   { transform: translate(1.2cqh, -.5cqh); }
+  14%  { transform: translate(0, 0); }
+  30%  { transform: translate(0, 0); }
+  34%  { transform: translate(1.8cqh, 1cqh) skewX(3deg); }
+  39%  { transform: translate(-1.4cqh, -.6cqh) skewX(-2deg); }
+  44%  { transform: translate(0, 0) skewX(1deg); }
+  60%  { transform: translate(0, 0) skewX(1deg); }
+  64%  { transform: translate(-2cqh, 1.4cqh) skewX(-4deg); }
+  70%  { transform: translate(1.6cqh, -1cqh) skewX(3deg); }
+  80%  { transform: translate(0, -3%) skewX(4deg) scaleY(.97); }
+  100% { transform: translate(1cqh, -22%) skewX(7deg) scaleY(.94); }
+}
+
+@keyframes door-dent {
+  0%   { opacity: 0; transform: scale(.4); }
+  35%  { opacity: .6; transform: scale(.6); }
+  65%  { opacity: .9; transform: scale(.85); }
+  100% { opacity: 1; transform: scale(1.1); }
+}
+
+/* ----- Jumpscare do MORROW: entra a quatro patas, ergue-se, a cabeça vem ao ecrã ----- */
+#jumpscare[data-monster="morrow"] .js-morrow { display: block; }
+/* Fundo iluminado por trás para a silhueta preta se destacar */
+#jumpscare[data-monster="morrow"] {
+  background-color: #000;
+  background-image:
+    radial-gradient(ellipse 55% 75% at 50% 70%, rgba(120, 96, 84, .75), rgba(60, 20, 12, .35) 55%, rgba(0, 0, 0, 0) 80%);
+  animation: jm-bg 2s steps(1) forwards;
+}
+#jumpscare[data-monster="morrow"] #js-noise { opacity: .1; mix-blend-mode: overlay; }
+
+@keyframes jm-bg {
+  0%   { background-color: #e0d8c8; }
+  3%   { background-color: #000; }
+  25%  { background-color: #3a0600; }
+  27%  { background-color: #000; }
+  46%  { background-color: #4a0800; }
+  49%  { background-color: #000; }
+  100% { background-color: #000; }
+}
+
+.js-morrow {
+  width: 100cqh;
+  height: 96cqh;
+  animation: jm-shake .06s infinite;
+}
+
+@keyframes jm-shake {
+  0%   { translate: 0 0; }
+  25%  { translate: -1.2cqh .8cqh; }
+  50%  { translate: 1.2cqh -.8cqh; }
+  75%  { translate: -.8cqh -.8cqh; }
+}
+
+.jm-stage {
+  position: absolute;
+  left: 50%; bottom: 0;
+  translate: -50% 0;
+  opacity: 0;
+  transform-origin: 50% 100%;
+}
+.jm-stand { height: 62cqh; animation: jm-stand 2s linear forwards; }
+.jm-rear  { height: 88cqh; animation: jm-rear 2s linear forwards; }
+.jm-head  { height: 92cqh; width: auto; bottom: 2cqh; transform-origin: 50% 38%; animation: jm-head 2s cubic-bezier(.3, 0, .9, .5) forwards; }
+
+@keyframes jm-stand {
+  0%  { opacity: 0; scale: .35; }
+  3%  { opacity: 1; scale: .4; }
+  26% { opacity: 1; scale: .85; }
+  27%, 100% { opacity: 0; }
+}
+@keyframes jm-rear {
+  0%, 26% { opacity: 0; scale: .78; }
+  27% { opacity: 1; scale: .8; }
+  46% { opacity: 1; scale: 1.06; }
+  47%, 100% { opacity: 0; }
+}
+@keyframes jm-head {
+  0%, 46% { opacity: 0; scale: .55; }
+  47% { opacity: 1; scale: .62; }
+  75% { opacity: 1; scale: 1.05; }
+  100% { opacity: 1; scale: 1.55; }
+}
+
+.jm-horn,
+.jm-skull { fill: #0a0a09; stroke: #000; stroke-width: 1.5; }
+.jm-socket { fill: #000; }
+.jm-eye { fill: #eaffda; filter: drop-shadow(0 0 6px rgba(220, 255, 200, 1)); }
+.jm-mouth { fill: #1c0200; }
+.jm-teeth { fill: #c9c4b0; }
+.jm-mark { fill: none; stroke: #3d1a12; stroke-width: 1.5; }
+
+
+/* =========================================================
+   NIGHT 4 — VENTILATION & POWER COMPLEX
+   ========================================================= */
+
+/* ----- A sala: paredes industriais, conduta no teto ----- */
+.map-powerComplex .office-wall {
+  background:
+    radial-gradient(ellipse 34% 26% at 50% 0%, rgba(255, 170, 60, .12), transparent 70%),
+    radial-gradient(ellipse 22% 32% at 14% 62%, rgba(0, 0, 0, .55), transparent 70%),
+    radial-gradient(ellipse 16% 24% at 86% 36%, rgba(30, 40, 46, .45), transparent 70%),
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - 3px), rgba(0, 0, 0, .35) calc(10% - 3px) 10%),
+    repeating-linear-gradient(0deg, transparent 0 calc(25% - 2px), rgba(0, 0, 0, .25) calc(25% - 2px) 25%),
+    linear-gradient(#262a2c, #1a1d1e 70%, #111314);
+}
+.map-powerComplex .pipe-top { height: 5cqh; top: 2%; background: linear-gradient(#55595a, #2b2e2f 55%, #121414); }
+.map-powerComplex .pipe-top::after {          /* rebites da conduta */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 6cqh, rgba(0, 0, 0, .55) 6cqh 6.4cqh);
+}
+.map-powerComplex .wall-vent { display: none; }
+.map-powerComplex .wall-note { top: 30%; left: 22%; filter: brightness(.45) sepia(.3); }
+.map-powerComplex #corridor .r-wall-l { background: repeating-linear-gradient(90deg, transparent 0 9%, rgba(0, 0, 0, .3) 9% 10%), linear-gradient(90deg, #1c1f20, #3a3f40); }
+.map-powerComplex #corridor .r-wall-r { background: repeating-linear-gradient(90deg, transparent 0 9%, rgba(0, 0, 0, .3) 9% 10%), linear-gradient(-90deg, #1c1f20, #3a3f40); }
+
+/* ----- Grelha da vent da sala (só existe na Night 4) ----- */
+#office-vent-wrap {
+  display: none;
+  position: absolute;
+  left: 10%; top: 50%;
+  width: 26cqh;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.6cqh;
+  z-index: 2;
+}
+.map-powerComplex #office-vent-wrap { display: flex; }
+
+#office-vent {
+  position: relative;
+  height: 17cqh;
+  cursor: grab;
+  background: #050606;
+  border: .9cqh solid #3e4243;
+  box-shadow: inset 0 0 0 .3cqh #121414, .6cqh .8cqh 1.6cqh rgba(0, 0, 0, .7);
+  touch-action: none;
+}
+#office-vent.held { cursor: grabbing; }
+.ov-dark {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, #0d0f10, #000 70%);
+}
+.ov-slats {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, #4a4f50 0 1.1cqh, #1a1d1e 1.1cqh 1.5cqh, transparent 1.5cqh 2.6cqh);
+  transform-origin: 50% 0;
+  transition: transform .15s;
+}
+.ov-bolt {
+  position: absolute;
+  width: 1.2cqh; height: 1.2cqh;
+  border-radius: 50%;
+  background: #6a6f70;
+  box-shadow: 0 0 0 .2cqh #111;
+}
+.ov-bolt-1 { left: -.6cqh; top: -.6cqh; }
+.ov-bolt-2 { right: -.6cqh; top: -.6cqh; }
+.ov-bolt-3 { left: -.6cqh; bottom: -.6cqh; }
+.ov-bolt-4 { right: -.6cqh; bottom: -.6cqh; }
+
+/* As mãos do segurança a segurar a grelha */
+.ov-hand {
+  display: none;
+  position: absolute;
+  top: 18%;
+  width: 7cqh; height: 11cqh;
+  background: linear-gradient(#2a221c, #18130f);
+  border-radius: 40% 40% 30% 30%;
+  box-shadow: inset 0 .6cqh 0 rgba(255, 255, 255, .05), 0 .6cqh 1cqh rgba(0, 0, 0, .7);
+}
+.ov-hand::before {           /* dedos */
+  content: '';
+  position: absolute;
+  left: 8%; right: 8%; top: -18%;
+  height: 34%;
+  background: repeating-linear-gradient(90deg, #2a221c 0 1.2cqh, transparent 1.2cqh 1.5cqh);
+  border-radius: 1cqh 1cqh 0 0;
+}
+.ov-hand-l { left: 8%; rotate: -6deg; }
+.ov-hand-r { right: 8%; rotate: 6deg; }
+#office-vent.held .ov-hand { display: block; }
+
+/* O Echo está do outro lado: a grelha treme e desloca-se */
+#office-vent.rattling .ov-slats { animation: vent-rattle .16s steps(2) infinite; }
+#office-vent.rattling:not(.held) { animation: vent-shift 2.2s ease-in-out infinite; }
+#office-vent.rattling .ov-dark { background: radial-gradient(ellipse at 50% 60%, #2a2b28, #000 70%); }
+#office-vent.bump .ov-slats { animation: vent-bump .35s ease-out; }
+#office-vent.bump { animation: vent-bump-frame .35s ease-out; }
+
+@keyframes vent-rattle {
+  50% { transform: translate(.3cqh, -.2cqh); }
+}
+@keyframes vent-shift {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  30% { transform: translate(.6cqh, -.3cqh) rotate(.8deg); }
+  60% { transform: translate(-.4cqh, .3cqh) rotate(-.6deg); }
+}
+@keyframes vent-bump {
+  0% { transform: scaleY(1); }
+  20% { transform: scaleY(.88) translateY(.8cqh); }
+  100% { transform: scaleY(1); }
+}
+@keyframes vent-bump-frame {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(.8cqh, .4cqh); }
+  40% { transform: translate(-.5cqh, -.2cqh); }
+}
+
+#btn-hold-vent {
+  padding: 1.4cqh 1cqh 1.4cqh 4.2cqh;
+  font-size: 2.8cqh;
+  letter-spacing: .12em;
+  touch-action: none;
+}
+#btn-hold-vent.is-active::before {
+  background: #8fd0d6;
+  box-shadow: 0 0 1.2cqh #8fd0d6;
+}
+.power-out #office-vent-wrap { filter: brightness(.35); }
+
+/* ----- Botões MAIN CAMS / VENT CAMS ----- */
+.net-toggle {
+  display: flex;
+  gap: 1cqh;
+}
+.net-btn {
+  flex: 1;
+  padding: .9cqh .5cqh;
+  font-size: 2.5cqh;
+  letter-spacing: .1em;
+  color: var(--crt);
+  background: #0b120b;
+  border: .3cqh solid var(--crt-dim);
+  border-radius: 0;
+}
+.net-btn:hover { background: #1a2a19; }
+.net-btn:focus { outline: none; }
+.net-btn.selected { color: #050705; background: var(--crt); border-color: var(--crt); }
+#btn-net-vent { color: #8fd0d6; border-color: #3d6467; background: #08100f; }
+#btn-net-vent.selected { color: #050707; background: #8fd0d6; border-color: #8fd0d6; }
+
+/* ----- Mapa principal da Night 4 (4 colunas) ----- */
+.map-power-layout .cam-btn { font-size: 2.1cqh; padding: .4cqh .5cqh; }
+.pc-r1     { left: 3%;    top: 5%;  width: 21%; height: 16%; }
+.pc-r2     { left: 27.5%; top: 5%;  width: 21%; height: 16%; }
+.pc-r3     { left: 52%;   top: 5%;  width: 21%; height: 16%; }
+.pc-r9     { left: 76.5%; top: 5%;  width: 21%; height: 16%; }
+.pc-r4     { left: 27.5%; top: 29%; width: 21%; height: 18%; }
+.pc-r6     { left: 52%;   top: 29%; width: 21%; height: 16%; }
+.pc-office { left: 79%;   top: 29%; width: 16%; height: 14%; }
+.pc-r5     { left: 27.5%; top: 55%; width: 21%; height: 16%; }
+.pc-r7     { left: 52%;   top: 55%; width: 21%; height: 16%; }
+.pc-r8     { left: 52%;   top: 78%; width: 21%; height: 19%; }
+.pc-r4 { flex-direction: column; gap: .2cqh; }
+
+.pc-link-12 { left: 24%;   top: 13%; width: 3.5%; height: .3cqh; }
+.pc-link-23 { left: 48.5%; top: 13%; width: 3.5%; height: .3cqh; }
+.pc-link-39 { left: 73%;   top: 13%; width: 3.5%; height: .3cqh; }
+.pc-link-24 { left: 38%;   top: 21%; width: .3cqh; height: 8%; }
+.pc-link-36 { left: 62.5%; top: 21%; width: .3cqh; height: 8%; }
+.pc-link-9o { left: 87%;   top: 21%; width: .3cqh; height: 8%; }
+.pc-link-45 { left: 38%;   top: 47%; width: .3cqh; height: 8%; }
+.pc-link-67 { left: 62.5%; top: 45%; width: .3cqh; height: 10%; }
+.pc-link-57 { left: 48.5%; top: 63%; width: 3.5%; height: .3cqh; }
+.pc-link-78 { left: 62.5%; top: 71%; width: .3cqh; height: 7%; }
+
+.map-vent-tag {
+  font-size: 1.6cqh;
+  letter-spacing: .2em;
+  color: #8fd0d6;
+  line-height: 1;
+}
+
+/* ----- Mapa das vents: outra rede, outra cor ----- */
+.map-vent-layout {
+  border-color: #3d6467;
+  background:
+    repeating-linear-gradient(45deg, rgba(143, 208, 214, .05) 0 .3cqh, transparent .3cqh 2cqh),
+    #040808;
+}
+.vent-node {
+  border-color: #8fd0d6;
+  background: rgba(143, 208, 214, .07);
+}
+.vent-btn { color: #8fd0d6; border-color: #8fd0d6; background: #071010; }
+.vent-btn:hover { background: #12302f; }
+.vent-btn.selected { color: #050707; background: #8fd0d6; box-shadow: 0 0 1.5cqh rgba(143, 208, 214, .6); }
+.vn-a { left: 4%;  top: 34%; width: 26%; height: 18%; }
+.vn-b { left: 37%; top: 34%; width: 26%; height: 18%; }
+.vn-c { left: 70%; top: 34%; width: 26%; height: 18%; }
+.vent-ghost {
+  border-style: dashed;
+  border-color: var(--crt-dim);
+  color: var(--crt-dim);
+  font-size: 2.2cqh;
+  background: none;
+}
+.vn-cam4   { left: 4%;  top: 70%; width: 26%; height: 14%; }
+.vn-office { left: 70%; top: 70%; width: 26%; height: 14%; }
+
+/* condutas: duas linhas paralelas */
+.vent-duct {
+  position: absolute;
+  border: .3cqh solid #8fd0d6;
+  opacity: .8;
+}
+.vd-ab { left: 30%; top: 40.5%; width: 7%;  height: 4%; border-left: none; border-right: none; }
+.vd-bc { left: 63%; top: 40.5%; width: 7%;  height: 4%; border-left: none; border-right: none; }
+.vd-a4 { left: 15%; top: 52%;   width: 4%;  height: 18%; border-top: none; border-bottom: none; }
+.vd-co { left: 81%; top: 52%;   width: 4%;  height: 18%; border-top: none; border-bottom: none; }
+
+/* ----- Câmaras da Night 4: tom industrial frio ----- */
+#cam-screen[data-view^="powerComplex"] #cam-view {
+  filter: grayscale(.6) sepia(.4) hue-rotate(150deg) saturate(1.2) contrast(1.15) brightness(.8);
+}
+#cam-screen[data-view="powerComplex-cam8"] #cam-view {
+  filter: grayscale(.75) sepia(.45) hue-rotate(68deg) saturate(1.2) contrast(1.25) brightness(.62);
+}
+#cam-screen[data-view="powerComplex-cam8"] #cam-noise { opacity: .05; }
+#cam-screen[data-view="powerComplex-cam8"] .cam-room-dark {
+  display: block;
+  background: radial-gradient(ellipse 55% 45% at 46% 66%, rgba(0, 0, 0, 0), rgba(0, 0, 0, .78));
+  animation: specimen-flicker 7s infinite;
+}
+#cam-screen[data-view="powerComplex-cam7"] .cam-room-dark {
+  display: block;
+  background: radial-gradient(ellipse 50% 55% at 50% 55%, rgba(0, 0, 0, .15), rgba(0, 0, 0, .85));
+}
+
+/* Câmaras das vents: imagem mais estreita, escura, metal muito perto, a vibrar */
+#cam-screen.vent-view { background: #000; }
+#cam-screen.vent-view #cam-view {
+  left: 14%; right: 14%;
+  filter: grayscale(.9) sepia(.2) hue-rotate(140deg) contrast(1.35) brightness(.7);
+  animation: vent-cam-shake 3s steps(3) infinite;
+}
+#cam-screen.vent-view #cam-noise { opacity: .15; }
+#cam-screen.vent-view .cam-room-dark {
+  display: block;
+  background: radial-gradient(ellipse 48% 55% at 50% 55%, rgba(0, 0, 0, 0), rgba(0, 0, 0, .55) 60%, rgba(0, 0, 0, .9) 85%);
+}
+#cam-screen.vent-view #cam-view::before {           /* moldura de metal colada à lente */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  border: 2.6cqh solid #0b0c0c;
+  box-shadow: inset 0 0 0 .5cqh #2a2e2f, inset 0 0 4cqh #000;
+}
+#cam-screen.vent-view .cam-rec { left: 16%; }
+#cam-screen.vent-view #cam-label { left: 16%; }
+
+@keyframes vent-cam-shake {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(.15%, -.1%); }
+  66% { transform: translate(-.1%, .12%); }
+}
+
+.scene-set[data-map="powerComplex"] .r-back {
+  background:
+    radial-gradient(ellipse 30% 40% at 70% 80%, rgba(0, 0, 0, .35), transparent 70%),
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(0, 0, 0, .35) calc(10% - 2px) 10%),
+    #3f4547;
+}
+.scene-set[data-map="powerComplex"] .r-wall-l { background: repeating-linear-gradient(0deg, transparent 0 11%, rgba(0, 0, 0, .25) 11% 11.8%), linear-gradient(90deg, #191c1d, #393f41); }
+.scene-set[data-map="powerComplex"] .r-wall-r { background: repeating-linear-gradient(0deg, transparent 0 11%, rgba(0, 0, 0, .25) 11% 11.8%), linear-gradient(-90deg, #191c1d, #393f41); }
+.scene-set[data-map="powerComplex"] .r-floor {
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .3) 0 2px, transparent 2px 7%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .25) 0 2px, transparent 2px 12%),
+    linear-gradient(#2a2e2f, #111314);
+}
+
+.pc-amber {
+  left: 46%; top: 3%;
+  width: 8%; height: 2.6%;
+  background: #ffae3a;
+  box-shadow: 0 0 5cqh 2cqh rgba(255, 170, 50, .25);
+  animation: blink 3.1s steps(1) infinite;
+}
+
+/* CAM 01 — Power Control */
+.pc-control { --bx1: 20%; --by1: 18%; --bx2: 80%; --by2: 60%; }
+.pc-panels {
+  left: 22%; top: 22%;
+  width: 56%; height: 30%;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(14.28% - .4cqh), #121414 calc(14.28% - .4cqh) 14.28%),
+    linear-gradient(#4b5153, #2f3436);
+  border: .5cqh solid #141616;
+}
+.pc-leds {
+  position: absolute;
+  inset: 12% 6% 50%;
+  background:
+    radial-gradient(circle, #ff4a2a 0 .4cqh, transparent .5cqh) 0 0 / 4.2cqh 2.6cqh,
+    radial-gradient(circle, #6dd36d 0 .35cqh, transparent .45cqh) 2.1cqh 1.3cqh / 4.2cqh 2.6cqh;
+  animation: leds 1.7s steps(2) infinite;
+}
+@keyframes leds { 50% { opacity: .55; } }
+.pc-console {
+  left: 26%; top: 54%;
+  width: 48%; height: 12%;
+  background: linear-gradient(#5a6062 0 25%, #262a2b 25%);
+  clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%);
+}
+.pc-lever {
+  left: 82%; top: 40%;
+  width: 1.2cqh; height: 14%;
+  background: #8a8f8f;
+  transform: rotate(-20deg);
+  transform-origin: bottom center;
+  box-shadow: 0 -1cqh 0 .5cqh #a2271a;
+}
+
+/* CAM 02 — Turbine Hall: uma ventoinha enorme a rodar */
+.pc-turbine { --bx1: 14%; --by1: 14%; --bx2: 86%; --by2: 66%; }
+.pc-fan {
+  left: 34%; top: 15%;
+  width: 32%; aspect-ratio: 1;
+  border-radius: 50%;
+  background: #0b0d0d;
+  border: 1.2cqh solid #4a5052;
+  box-shadow: 0 0 0 .5cqh #1a1d1e, inset 0 0 3cqh #000;
+}
+.pc-fan-blades {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(#545b5d 0 22deg, transparent 22deg 45deg);
+  animation: fan-spin 2.4s linear infinite;
+}
+.pc-fan-hub {
+  position: absolute;
+  inset: 40%;
+  border-radius: 50%;
+  background: #2a2e2f;
+  border: .6cqh solid #6b7173;
+}
+@keyframes fan-spin { to { transform: rotate(360deg); } }
+.pc-rail {
+  left: 0; top: 64%;
+  width: 100%; height: 6%;
+  background: repeating-linear-gradient(90deg, #6b6f6f 0 .5cqh, transparent .5cqh 4cqh);
+  border-top: .6cqh solid #7a7f7f;
+}
+
+/* CAM 03 — Maintenance Junction: condutas a cruzar e vapor */
+.pc-junction { --bx1: 32%; --by1: 26%; --bx2: 68%; --by2: 60%; }
+.pc-duct {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 5cqh, rgba(0, 0, 0, .45) 5cqh 5.4cqh),
+    linear-gradient(#6a7072, #3a3f41 55%, #1f2223);
+  border: .4cqh solid #161818;
+}
+.pc-duct-h { left: 0; top: 10%; width: 100%; height: 10%; }
+.pc-duct-v {
+  left: 72%; top: 0; width: 9%; height: 70%;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 5cqh, rgba(0, 0, 0, .45) 5cqh 5.4cqh),
+    linear-gradient(90deg, #6a7072, #3a3f41 55%, #1f2223);
+}
+.pc-duct-low { left: 0; top: 30%; width: 38%; height: 9%; }
+.pc-duct-ceil { left: 0; top: 4%; width: 100%; height: 8%; }
+.pc-hazard {
+  left: 0; top: 0; width: 100%; height: 100%;
+  clip-path: polygon(34% 62%, 66% 62%, 70% 70%, 30% 70%);
+  background: repeating-linear-gradient(45deg, #5a4a1c 0 1.4cqh, #121210 1.4cqh 2.8cqh);
+}
+.pc-steam {
+  width: 18%; height: 30%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(220, 230, 230, .35), transparent 65%);
+  filter: blur(1cqh);
+  animation: steam 6s ease-out infinite;
+}
+.pc-steam-1 { left: 14%; top: 34%; }
+.pc-steam-2 { left: 62%; top: 26%; animation-delay: 2.5s; }
+@keyframes steam {
+  0%, 55%, 100% { opacity: 0; transform: translateY(0) scale(.6); }
+  65% { opacity: 1; }
+  95% { opacity: 0; transform: translateY(-30%) scale(1.3); }
+}
+
+/* CAM 04 — Cooling Room: tanques e a entrada das vents */
+.pc-cooling { --bx1: 24%; --by1: 20%; --bx2: 76%; --by2: 62%; }
+.pc-tank {
+  top: 20%;
+  width: 14%; height: 58%;
+  border-radius: 1.4cqh;
+  background:
+    linear-gradient(transparent 0 18%, rgba(0, 0, 0, .4) 18% 21%, transparent 21% 78%, rgba(0, 0, 0, .4) 78% 81%, transparent 81%),
+    linear-gradient(90deg, #2a3031, #6b7476 40%, #2a3031);
+}
+.pc-tank-a { left: 6%; }
+.pc-tank-b { left: 78%; }
+.pc-vent-hole {
+  left: 41%; top: 30%;
+  width: 18%; height: 18%;
+  background: #000;
+  border: .8cqh solid #4a5052;
+  box-shadow: inset 0 0 3cqh #000;
+}
+.pc-vent-cover {          /* grelha arrancada, pendurada */
+  position: absolute;
+  left: -10%; top: 92%;
+  width: 100%; height: 90%;
+  background: repeating-linear-gradient(0deg, #5a6062 0 .8cqh, transparent .8cqh 1.6cqh);
+  border: .4cqh solid #5a6062;
+  transform: rotate(-28deg);
+  transform-origin: top left;
+}
+
+/* CAM 05 — Generator Hall */
+.pc-generator { --bx1: 12%; --by1: 22%; --bx2: 88%; --by2: 60%; }
+.pc-gen-a { left: 8%;  top: 32%; }
+.pc-gen-b { left: 39%; top: 30%; width: 22%; }
+.pc-gen-c { left: 70%; top: 32%; }
+.pc-cable-1 { left: 30%; top: 62%; width: 40%; height: 18%; }
+
+/* CAM 06 — Service Tunnel */
+.pc-tunnel { --bx1: 44%; --by1: 36%; --bx2: 56%; --by2: 56%; }
+.pc-tunnel .r-back { background: #0b0c0c; }
+.pc-tlight { background: #ffae3a; box-shadow: 0 0 2cqh rgba(255, 170, 50, .35); }
+.pc-tlight-1 { left: 47%;   top: 8%;  width: 6%;   height: 1.6%; }
+.pc-tlight-2 { left: 48.8%; top: 26%; width: 2.4%; height: .8%; }
+.pc-cable-2 { left: 20%; top: 0; width: 22%; height: 20%; }
+
+/* CAM 07 — Lower Junction */
+.pc-lower { --bx1: 30%; --by1: 28%; --bx2: 70%; --by2: 60%; }
+.pc-stairs {
+  left: 8%; top: 30%;
+  width: 22%; height: 54%;
+  background: repeating-linear-gradient(0deg, #3a3f41 0 2.4cqh, #151718 2.4cqh 3cqh);
+  clip-path: polygon(0 100%, 100% 100%, 100% 0, 70% 0);
+}
+.pc-grate {
+  left: 0; top: 0; width: 100%; height: 100%;
+  clip-path: polygon(40% 64%, 60% 64%, 64% 80%, 36% 80%);
+  background: repeating-linear-gradient(90deg, #0a0b0b 0 .5cqh, #2d3132 .5cqh 1.3cqh);
+}
+
+/* CAM 08 — Morrow Chamber */
+.pc-chamber { --bx1: 22%; --by1: 22%; --bx2: 78%; --by2: 66%; }
+.pc-chamber .r-back { background: radial-gradient(ellipse 40% 60% at 50% 100%, rgba(0, 0, 0, .4), transparent 70%), #3a3d3a; }
+.pc-cage {
+  left: 24%; top: 24%;
+  width: 52%; height: 42%;
+  background: repeating-linear-gradient(90deg, #262826 0 .7cqh, transparent .7cqh 5cqh);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 70% 100%, 64% 26%, 52% 40%, 44% 100%, 0 100%);
+}
+
+/* CAM 09 — Main Hall */
+.pc-hall { --bx1: 16%; --by1: 14%; --bx2: 84%; --by2: 70%; }
+.pc-office-door { left: 60%; top: 30%; width: 14%; height: 40%; }
+.pc-office-door .p-sign { font-size: 2.2cqh; }
+.pc-hazard-hall { clip-path: polygon(56% 70%, 78% 70%, 80% 76%, 54% 76%); }
+
+/* ----- Dentro das vents: conduta quadrada com nervuras ----- */
+.vent { --bx1: 40%; --by1: 38%; --bx2: 60%; --by2: 62%; }
+.vent .r-ceiling { background: repeating-linear-gradient(0deg, transparent 0 5%, rgba(0, 0, 0, .45) 5% 5.8%), linear-gradient(#3a4041, #6a7274); }
+.vent .r-floor { background: repeating-linear-gradient(0deg, transparent 0 4%, rgba(0, 0, 0, .45) 4% 4.8%), linear-gradient(#5d6466, #3a4041); }
+.vent .r-wall-l { background: repeating-linear-gradient(90deg, transparent 0 6%, rgba(0, 0, 0, .5) 6% 6.8%), linear-gradient(90deg, #4a5052, #6d7577); }
+.vent .r-wall-r { background: repeating-linear-gradient(-90deg, transparent 0 6%, rgba(0, 0, 0, .5) 6% 6.8%), linear-gradient(-90deg, #4a5052, #6d7577); }
+.vent .r-back { background: #020202; }
+.vent-ribs {         /* anéis de reforço da conduta, a afastar */
+  inset: 0;
+  background:
+    linear-gradient(transparent, transparent),
+    radial-gradient(transparent, transparent);
+  box-shadow:
+    inset 0 0 0 1.2cqh rgba(0, 0, 0, .45);
+}
+.vent-ribs::before,
+.vent-ribs::after {
+  content: '';
+  position: absolute;
+  border: .9cqh solid rgba(140, 150, 152, .7);
+  box-shadow: 0 0 0 .3cqh rgba(0, 0, 0, .5);
+}
+.vent-ribs::before { left: 18%; right: 18%; top: 18%; bottom: 18%; }
+.vent-ribs::after  { left: 31%; right: 31%; top: 30%; bottom: 30%; border-width: .5cqh; }
+.vent-opening {      /* ao fundo: luz da Cooling Room */
+  left: 42%; top: 40%;
+  width: 16%; height: 20%;
+  background: radial-gradient(ellipse, rgba(200, 220, 220, .35), rgba(0, 0, 0, 0) 70%);
+}
+.vent-side {
+  top: 24%;
+  width: 8%; height: 52%;
+  background: #000;
+  box-shadow: 0 0 2cqh 1cqh #000;
+}
+.vent-side-l { left: 6%; }
+.vent-side-r { right: 6%; }
+.vent-end-grille {   /* ao fundo: a tua grelha, com a luz da sala a passar */
+  left: 40%; top: 38%;
+  width: 20%; height: 24%;
+  background: repeating-linear-gradient(0deg, rgba(255, 210, 150, .55) 0 .6cqh, #0b0b0b .6cqh 1.4cqh);
+  box-shadow: 0 0 3cqh rgba(255, 200, 140, .25);
+}
+
+/* Onde aparecem os monstros nas câmaras da Night 4 */
+.cam-monster[data-spot="powerComplex-cam1"] { --x: 66%; --y: 30%; --h: 36%; }
+.cam-monster[data-spot="powerComplex-cam2"] { --x: 24%; --y: 26%; --h: 42%; }
+.cam-monster[data-spot="powerComplex-cam3"] { --x: 46%; --y: 30%; --h: 36%; }
+.cam-monster[data-spot="powerComplex-cam4"] { --x: 30%; --y: 26%; --h: 42%; }
+.cam-monster[data-spot="powerComplex-cam5"] { --x: 50%; --y: 36%; --h: 32%; }
+.cam-monster[data-spot="powerComplex-cam6"] { --x: 50%; --y: 30%; --h: 30%; }
+.cam-monster[data-spot="powerComplex-cam7"] { --x: 54%; --y: 28%; --h: 40%; }
+.cam-monster[data-spot="powerComplex-cam9"] { --x: 40%; --y: 4%;  --h: 76%; }
+
+#cam-morrow[data-spot="powerComplex-cam8"] { --x: 52%; --y: 30%; --h: 46%; }
+#cam-morrow[data-spot="powerComplex-cam8"][data-pose="lying"],
+#cam-morrow[data-spot="powerComplex-cam8"][data-pose="headup"] { --x: 50%; --y: 26%; --h: 64%; }
+#cam-morrow[data-spot="powerComplex-cam7"] { --x: 50%; --y: 14%; --h: 56%; }
+#cam-morrow[data-spot="powerComplex-cam6"] { --x: 50%; --y: 10%; --h: 50%; }
+#cam-morrow[data-spot="powerComplex-cam3"] { --x: 46%; --y: 10%; --h: 56%; }
+#cam-morrow[data-spot="powerComplex-cam9"] { --x: 40%; --y: 0%;  --h: 86%; }
+
+/* Echo nas câmaras principais */
+#cam-echo { animation: none; }
+#cam-echo[data-spot="powerComplex-cam1"] { --x: 34%; --y: 14%; --h: 56%; }
+#cam-echo[data-spot="powerComplex-cam2"] { --x: 72%; --y: 12%; --h: 60%; }
+#cam-echo[data-spot="powerComplex-cam4"] { --x: 50%; --y: 14%; --h: 58%; }
+#cam-echo[data-spot="powerComplex-cam5"] { --x: 50%; --y: 20%; --h: 52%; }
+#cam-echo[data-spot="powerComplex-cam7"] { --x: 46%; --y: 14%; --h: 56%; }
+/* Echo nas vents: cada vez mais perto */
+#cam-echo[data-spot="powerComplex-ventA"] { --x: 50%; --y: 26%; --h: 44%; }
+#cam-echo[data-spot="powerComplex-ventB"] { --x: 50%; --y: 10%; --h: 72%; }
+#cam-echo[data-spot="powerComplex-ventC"] { --x: 50%; --y: 4%;  --h: 92%; }
+#cam-echo[data-part="hand"] { --x: 22%; --y: 18%; --h: 70%; }
+
+
+/* =========================================================
+   ECHO (desenhado em SVG, no <template> do HTML)
+   data-pose: crouch / listen / rear / crawl
+   data-mood: calm / alert / aggressive
+   data-part (vents): full / head / hand / membrane / shadow
+   ========================================================= */
+
+.echo-figure { aspect-ratio: 1; }
+
+.echo-figure .e-pose {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  overflow: visible;
+}
+.echo-figure[data-pose="crouch"] .e-crouch,
+.echo-figure[data-pose="listen"] .e-listen,
+.echo-figure[data-pose="rear"]   .e-rear,
+.echo-figure[data-pose="crawl"]  .e-crawl { display: block; }
+
+/* Nas vents às vezes só se vê uma parte */
+.echo-figure[data-part="hand"] .e-pose { display: none; }
+.echo-figure[data-part="hand"] .e-hand { display: block; }
+.echo-figure[data-part="head"] .e-crawl .e-arms,
+.echo-figure[data-part="head"] .e-crawl .e-body,
+.echo-figure[data-part="head"] .e-crawl .e-rib { display: none; }
+.echo-figure[data-part="membrane"] .e-crawl > :not(.e-head),
+.echo-figure[data-part="membrane"] .e-crawl .e-head > :not(.e-mem-l) { display: none; }
+.echo-figure[data-part="membrane"] { translate: -95% 0; }
+.echo-figure[data-part="shadow"] { filter: brightness(.08); opacity: .75; }
+
+.e-pose path { stroke-linejoin: round; }
+.e-pose g, .e-pose path { transform-box: fill-box; }
+.e-legs path,
+.e-skin,
+.e-body {
+  fill: #a7a49a;
+  stroke: #3d3b36;
+  stroke-width: .9;
+}
+.e-legs path { fill: #8f8c83; }
+.e-body { fill: #9d9a90; }
+.e-rib { fill: none; stroke: #5e5b54; stroke-width: 1.6; }
+.e-fold { fill: none; stroke: #6a675f; stroke-width: 1.1; }
+.e-mem {
+  fill: #6e5853;
+  stroke: #2e2220;
+  stroke-width: .9;
+  opacity: .92;
+  transition: transform .25s;
+}
+.e-vein { fill: none; stroke: #2e1c1a; stroke-width: .9; }
+.e-claw-line { fill: none; stroke: #3a3934; stroke-width: 1.4; stroke-linecap: round; }
+.e-claw { fill: #d6d3c8; stroke: #57544d; stroke-width: .6; }
+.e-mouth-closed { fill: none; stroke: #3a2e2a; stroke-width: 1.2; stroke-linecap: round; }
+.e-mouth-open { display: none; fill: #120404; stroke: #d8d2c0; stroke-width: 1.2; stroke-dasharray: 2 1.4; }
+
+/* Calmo: quase não se mexe */
+.echo-figure[data-mood="calm"] .e-body { animation: e-breathe 5s ease-in-out infinite; transform-origin: 50% 100%; }
+
+/* Alerta: as membranas tremem e a cabeça vira devagar para o som */
+.echo-figure[data-mood="alert"] .e-mem { animation: e-mem-twitch 3.2s infinite; }
+.echo-figure[data-mood="alert"] .e-mem-l { transform-origin: 100% 100%; }
+.echo-figure[data-mood="alert"] .e-mem-r { transform-origin: 0% 100%; }
+.echo-figure[data-pose="listen"] .e-head,
+.echo-figure[data-pose="rear"] .e-head { animation: e-head-turn 5.5s ease-in-out infinite; transform-origin: 50% 100%; }
+
+/* Agressivo: membranas esticadas e boca aberta */
+.echo-figure[data-mood="aggressive"] .e-mouth-closed { display: none; }
+.echo-figure[data-mood="aggressive"] .e-mouth-open { display: inline; }
+.echo-figure[data-mood="aggressive"] .e-mem-l { transform: rotate(-14deg) scale(1.25); transform-origin: 100% 100%; }
+.echo-figure[data-mood="aggressive"] .e-mem-r { transform: rotate(14deg) scale(1.25); transform-origin: 0% 100%; }
+.echo-figure[data-mood="aggressive"] .e-crawl .e-mem-l { transform: rotate(-12deg) scale(1.2); transform-origin: 100% 50%; }
+.echo-figure[data-mood="aggressive"] .e-crawl .e-mem-r { transform: rotate(12deg) scale(1.2); transform-origin: 0% 50%; }
+.echo-figure[data-mood="aggressive"] .e-head { animation: e-head-jerk 1.3s steps(1) infinite; transform-origin: 50% 100%; }
+
+@keyframes e-breathe { 50% { transform: scaleY(1.03); } }
+@keyframes e-mem-twitch {
+  0%, 70%, 100% { transform: none; }
+  73% { transform: rotate(-6deg); }
+  76% { transform: rotate(3deg); }
+  80% { transform: none; }
+}
+@keyframes e-head-turn {
+  0%, 100% { transform: rotate(0); }
+  35% { transform: rotate(-9deg); }
+  70% { transform: rotate(6deg); }
+}
+@keyframes e-head-jerk {
+  0% { transform: rotate(0); }
+  20% { transform: rotate(-12deg); }
+  45% { transform: rotate(9deg); }
+  70% { transform: rotate(-4deg); }
+}
+
+/* ----- Jumpscare do ECHO: a grelha rebenta, uma mão, ele sai, ergue-se, a cara ----- */
+#jumpscare[data-monster="echo"] .js-echo { display: block; }
+#jumpscare[data-monster="echo"] {
+  background-color: #000;
+  background-image: radial-gradient(ellipse 50% 60% at 50% 60%, rgba(40, 52, 54, .9), rgba(0, 0, 0, 0) 75%);
+  animation: je-bg 2.1s steps(1) forwards;
+}
+#jumpscare[data-monster="echo"] #js-noise { opacity: .18; }
+
+@keyframes je-bg {
+  0%   { background-color: #d8dcd8; }
+  4%   { background-color: #000; }
+  47%  { background-color: #102022; }
+  49%  { background-color: #000; }
+  100% { background-color: #000; }
+}
+
+.js-echo {
+  width: 100cqh;
+  height: 96cqh;
+  animation: jm-shake .06s infinite;
+}
+.je-stage {
+  position: absolute;
+  left: 50%; bottom: 0;
+  translate: -50% 0;
+  opacity: 0;
+  transform-origin: 50% 70%;
+}
+.je-grille {
+  bottom: 30cqh;
+  width: 44cqh; height: 28cqh;
+  background: repeating-linear-gradient(0deg, #6a7072 0 2cqh, #141616 2cqh 3.2cqh);
+  border: 1.4cqh solid #4a5052;
+  animation: je-grille 2.1s ease-out forwards;
+}
+.je-hand  { width: 90cqh; height: 90cqh; left: 34%; bottom: -10cqh; animation: je-hand 2.1s linear forwards; }
+.je-crawl { height: 92cqh; animation: je-crawl 2.1s linear forwards; }
+.je-rear  { height: 96cqh; animation: je-rear 2.1s linear forwards; }
+.je-face  { width: auto; height: 92cqh; bottom: 0; transform-origin: 50% 45%; animation: je-face 2.1s cubic-bezier(.3, 0, .9, .5) forwards; }
+
+@keyframes je-grille {
+  0%   { opacity: 1; transform: scale(.7) rotate(0); }
+  14%  { opacity: 1; transform: scale(2.6) rotate(-24deg) translate(-10%, 20%); }
+  20%, 100% { opacity: 0; transform: scale(3) rotate(-30deg); }
+}
+@keyframes je-hand {
+  0%, 6% { opacity: 0; transform: translate(-30%, 30%) scale(.8); }
+  10% { opacity: 1; }
+  30% { opacity: 1; transform: translate(0, 0) scale(1.1); }
+  34%, 100% { opacity: 0; }
+}
+@keyframes je-crawl {
+  0%, 28% { opacity: 0; transform: scale(.6); }
+  30% { opacity: 1; }
+  47% { opacity: 1; transform: scale(1); }
+  48%, 100% { opacity: 0; }
+}
+@keyframes je-rear {
+  0%, 47% { opacity: 0; transform: scale(.75); }
+  48% { opacity: 1; }
+  66% { opacity: 1; transform: scale(1.02); }
+  67%, 100% { opacity: 0; }
+}
+@keyframes je-face {
+  0%, 66% { opacity: 0; transform: scale(.55); }
+  67% { opacity: 1; transform: scale(.65); }
+  85% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1.6); }
+}
+
+.je-head { fill: url(#je-skin-grad); stroke: #2a2825; stroke-width: 1.4; }
+.je-mem { fill: #5e4844; stroke: #241917; stroke-width: 1.4; opacity: .95; }
+.je-vein { fill: none; stroke: #1f1311; stroke-width: 1.4; }
+.je-fold { fill: none; stroke: #4e4b45; stroke-width: 1.8; }
+.je-jaw { fill: url(#je-maw-grad); stroke: #1a0000; stroke-width: 1; }
+.je-teeth { fill: #ddd6c0; }
+
+
+/* =========================================================
+   SCANLINES (por cima de tudo)
+   ========================================================= */
+
+#scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .2) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, .55) 100%);
+  animation: scan-flicker .2s infinite steps(2);
+}
+
+@keyframes scan-flicker {
+  50% { opacity: .94; }
+}
