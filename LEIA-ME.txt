@@ -29,8 +29,33 @@ PASTAS
 ambience/    ambiente contínuo (loops) e pequenos eventos aleatórios
 cameras/     abrir/fechar monitor, troca de câmara, estática
 office/      porta, luz, grelha da vent, falta de energia
-monsters/    pistas do Black, do Watcher, do Morrow e do Echo
-jumpscares/  sustos (black.ogg, watcher.ogg, morrow.ogg, echo.ogg)
+monsters/    pistas do Black, do Watcher, do Morrow, do Echo e do Vesper
+jumpscares/  sustos (black_mouth.wav, watcher_clock.wav, morrow_mouth.wav, echo_maw.wav, vesper_face.wav,
+             zero_split.wav). O watcher.ogg antigo já não é usado (o Watcher
+             passou a ter a cabeça-relógio: ver monsters/watcher_tick_*.wav,
+             watcher_tick_reverse.wav, watcher_gear.wav). O black.ogg antigo também
+             já não é usado (o Black abre a cabeça e mostra a boca: black_mouth.wav;
+             e há monsters/black_hands_01/02.wav, black_joint.wav, black_open.wav).
+             O morrow.ogg antigo também já não é usado (o Morrow ergue-se, olha e a
+             cabeça abre-se: morrow_mouth.wav; e há monsters/morrow_joint_01/02.wav,
+             morrow_open.wav).
+             O vesper.wav antigo também já não é usado (a false face do Vesper
+             transforma-se na cara real: vesper_face.wav; e monsters/vesper_deform.wav).
+             O echo.ogg antigo também já não é usado (a grelha cede, ele sai a rastejar
+             e a mandíbula abre-se: echo_maw.wav; e monsters/echo_crawl_01/02.wav,
+             echo_roar.wav — o rugido raro).
+             O subject_zero.wav antigo também já não é usado (a face do Subject Zero divide-se
+             na vertical: zero_split.wav; e monsters/zero_open.wav, zero_shift.wav).
+
+anomalies/  Custom Night: ANOMALIES (entidades não-canónicas, só na Custom Night)
+             hush_tone / hush_react / hush_leave, knock_01/02, knock_far, knocker_hand,
+             latch_skitter_01/02, latch_spark, latch_chute, lumen_flap_01/02, lumen_buzz,
+             lumen_flare. Os sustos estão em jumpscares/: hush_fall.wav, knocker_hands.wav,
+             latch_leap.wav, lumen_wings.wav.
+
+Os sons do Vesper (Night 5) estão em .wav: monsters/vesper_*.wav e
+jumpscares/vesper.wav. Também foram gerados pelo jogo (receitas em
+audio.js). Podes trocá-los por .ogg: muda também o caminho em AUDIO.
 ui/          menu, início da noite, 6 AM
 
 Sons em loop (estão em .wav para começarem e acabarem sem "salto"):
